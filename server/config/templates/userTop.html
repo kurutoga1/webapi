@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+</head>
+
+<body>
+    <p>Hello Top</p>
+    <table border="1">
+        <tr>
+            <th>プログラム名</th>
+            <th>処理内容</th>
+            <th>実行画面へ</th>
+        </tr>
+        {{ range .ProInfos }}
+        <tr>
+            <td>{{ .Name }}</td>
+            <td>{{ .Help }}</td>
+            <td>
+                <form action="/user/prepareExec" method="post">
+                    <input type="hidden" name="proName" value="{{ .Name }}" />
+                    <input type="submit" value="実行画面へ" />
+                </form>
+            </td>
+        </tr>
+        {{ end }}
+    </table>
+</body>
+
+</html>

@@ -1,0 +1,7 @@
+{
+    "programs": [{
+        "name": "convertToJson",
+        "command": "python3 programs\\convertToJson/convert_json.py INPUTFILE OUTPUTDIR programs/convertToJson/config.json PARAMETA",
+        "helpPath": "programs/convertToJson/help.txt"
+    }]
+}

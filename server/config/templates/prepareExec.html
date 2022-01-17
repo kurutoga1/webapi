@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="/static/css/google.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+    <link rel="icon" type="image/x-icon" href="/static/img/favicon.png">
+    <title>Document</title>
+</head>
+
+<body>
+    <!--    Googleのローディングのやつ-->
+    <div class="loading" id="GoogleLoading">
+        <div class="loading-bar"></div>
+        <div class="loading-bar"></div>
+        <div class="loading-bar"></div>
+        <div class="loading-bar"></div>
+    </div>
+
+
+
+    <p>Program Name {{ .Name }}</p>
+    <form id="form" enctype="multipart/form-data" action="/user/exec" method="POST">
+        <input type="hidden" name="proName" value="{{ .Name }}" />
+        <input type="text" name="parameta" value="" placeholder="パラメータ" />
+        <br /><br />
+        <div id="drop-zone" style="border: 1px solid; padding: 30px">
+            <input type="file" name="file" id="file-input" multiple />
+        </div>
+        <br /><br />
+        <button class="button" type="submit" onclick="executeSubmit();">実行</button>
+    </form>
+
+    <script>
+
+        // 実行ボタンが押されたらローディングを表示する。
+        function executeSubmit(){
+            document.getElementById("GoogleLoading").style.display ="block";
+        }
+
+        // ローディングは通常ボタンを押されるまで見えなくする。
+        document.getElementById("GoogleLoading").style.display ="none";
+
+        // ファイルドロップの機能
+        var dropZone = document.getElementById("drop-zone");
+        var fileInput = document.getElementById("file-input");
+
+        dropZone.addEventListener(
+            "dragover",
+            function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                this.style.background = "#e1e7f0";
+            },
+            false
+        );
+
+        dropZone.addEventListener(
+            "dragleave",
+            function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                this.style.background = "#ffffff";
+            },
+            false
+        );
+
+        dropZone.addEventListener(
+            "drop",
+            function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                this.style.background = "#ffffff"; //背景色を白に戻す
+                var files = e.dataTransfer.files; //ドロップしたファイルを取得
+                if (files.length > 1)
+                    return alert("アップロードできるファイルは1つだけです。");
+                fileInput.files = files; //inputのvalueをドラッグしたファイルに置き換える。
+            },
+            false
+        );
+    </script>
+</body>
+
+</html>

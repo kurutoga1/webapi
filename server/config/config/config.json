@@ -1,0 +1,23 @@
+{
+    "templatesDir": "templates",
+    "programsDir": "programs",
+    "fileServer": {
+        "dir": "fileserver",
+        "uploadDir": "upload",
+        "programOutDir": "programOut"
+    },
+    "log": {
+        "dir": "fileserver/log",
+        "programsDir": "programs",
+        "goLog": "go.log",
+        "rotateMaxKB": 6,
+        "rotateShavingKB": 3
+    },
+    "DeleteProcessedFileLimitSecondTime": 600,
+    "ServerIP": "127.0.0.1",
+    "ServerPort": "8081",
+    "programTimeOutSecond": 20,
+    "StdoutBufferSize": 1000000,
+    "StderrBufferSize": 1000000,
+    "MaxUploadSizeMB": 300
+}

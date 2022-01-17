@@ -1,0 +1,15 @@
+fileserver
+./fileserver/*
+./diff.txt
+*.pcap
+*.zip
+diff.txt
+log.txt
+build/cli/cli
+build/gw/gw
+build/server1/server
+build/server2/server
+build/server3/server
+.idea
+./build
+build

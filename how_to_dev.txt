@@ -1,0 +1,87 @@
+決まり事
+;cfgをパッケージレベルで定義し、どこでも使用しているがテストが困難になるので、関数内の引数で受け取り処理させるようにする。パッケージレベルで使用するのはハンドラーのみ。
+;ビルトインパッケージのエラーはfmt.Errorf("関数名: %v", err)で返し、自作関数の一番低レベルの箇所はエラー内容がわかるようにerrors.New(内容)を返す。
+;中間レベルのエラーはfmt.Errorf("関数名: %v", err)で返す。
+;高レベルのエラー(handlerとかユーザーに近い部分(低レベルの処理をまとめている箇所))はいい感じにする。
+;低レベル、または中間レベルの関数などを定義する場合はそれが再利用可能かを考えながら作成する。
+;ロガーは高レベル関数で使用することを意識する。中間や低レベル関数はなるべく使用しないようにする。
+;テストする場合は事前準備をinitで定義すると他のパッケージ内のテストをした場合にinitが実行されるので
+Test関数の中でそのファイルのみのsetting関数を作成し使用する。
+
+とりあえず上記のことを意識しながら全体をリファクタリングしていく。(テストしながら)
+一番上にそのファイルの説明を表記していく。
+
+
+インタフェース
+引数はなるべく構造体とか具体的な名前ではなく、インタフェースを利用しよう。
+構造体を書き、次にそれをインタフェースでまとめて関数の引数はインタフェース、返り値は構造体で返す。
+構造体の共通点を探してそのメソッドをインターフェースにする。
+返す構造体が具体的すぎるので代わりにインターフェースを使用して抽象化する。具体的になるとその構造体に
+変更があった場合それを使用している箇所を全て修正しなければならない。
+インタフェースは役職名。実際にどんな作業をするかはインタフェースを実装している構造体次第。
+
+ロガーは基本的にライブラリの中では使用しないようにしよう
+ログを書くのはmain.goとハンドラーの中だけにしよう。
+挙動が不安な場合はtestをよく記述しよう。または設計を見直そう。
+ログの書き方は次を参照 -> https://www.kaoriya.net/blog/2018/12/16/
+
+
+TODO: 様々なエラーを起こし、エラー対処を適切にユーザに報告できるようにする。
+１、該当プログラムを保持するプログラムサーバがなかった場合
+cli
+err from Select(): Select: invalid character 'S' looking for beginning of value, response from APIGW server: Select: GetAliveServers: alive servers are nothing!!.
+web
+APIGWにアクセスした段階で生きているサーバのプログラムのみを表示するので初めからプログラムが出てこない
+
+２、プログラムサーバが一台も生きていない場合
+cli
+err from Select(): Select: invalid character 'S' looking for beginning of value, response from APIGW server: Select: GetAliveServers: alive servers are nothing!!.
+web
+GetAliveServers: alive servers are nothing!!.全てのプログラムサーバが生きていない可能性があります。
+
+３、APIGWサーバが一台も生きていない場合
+cli
+2022/01/17 06:21:04 生きているAPIゲートウェイサーバはありませんでした。
+web
+繋がらない
+
+４、プログラムサーバのプログラムが実行さえできなかった場合
+実行ファイル名を変えた場合
+{
+  "outURLs": [],
+  "stdout": "",
+  "stderr": "/Library/Frameworks/Python.framework/Versions/3.9/bin/python3: can't open file '/Users/hibiki/go/src/webapi/build/server1/programs/convertToJson/convert_json.py': [Errno 2] No such file or directory\n",
+  "status": "program error",
+  "errmsg": "Exec: exit status 2 "
+}
+
+５、登録プログラムがタイムアウトする場合
+{
+  "outURLs": [],
+  "stdout": "",
+  "stderr": "",
+  "status": "program error",
+  "errmsg": "program time out error"
+}
+タイムアウトした場合は現状では標準出力、エラー出力を取得することはできない
+
+６、登録プログラムがエラーを起こした場合
+{
+  "outURLs": [],
+  "stdout": "['/Users/hibiki/go/src/webapi/build/server1/programs/convertToJson/convert_json.py', 'fileserver/programOut/toJson/2022-01-17-06-34-37-xJRaxFpcmVjBIoWS65wq/test.txt', 'fileserver/programOut/toJson/2022-01-17-06-34-37-xJRaxFpcmVjBIoWS65wq/out', '/Users/hibiki/go/src/webapi/build/server1/programs/convertToJson/config.json', 'ok,', '', 'dummy']\nfileserver/programOut/toJson/2022-01-17-06-34-37-xJRaxFpcmVjBIoWS65wq/test.txt\nfileserver/programOut/toJson/2022-01-17-06-34-37-xJRaxFpcmVjBIoWS65wq/out\nprocess start\nprocess end\n",
+  "stderr": "Traceback (most recent call last):\n  File \"/Users/hibiki/go/src/webapi/build/server1/programs/convertToJson/convert_json.py\", line 16, in \u003cmodule\u003e\n    raise BaseException(\"python is error\")\nBaseException: python is error\n",
+  "status": "program error",
+  "errmsg": "Exec: exit status 1 "
+}
+
+７、アップロード出来なかった場合
+cli
+http://127.0.0.1:8082へのファイルのアップロードが失敗しました。err msg: Upload: : アップロードされたファイルが大きすぎます。10MB以下のファイルを指定してください too large
+
+ stderr:   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  5  195M  100   178    5 11.3M   8476   540M --:--:-- --:--:-- --:--:--  515M
+web
+http: request body too large, Upload: アップロードされたファイルが大きすぎます。10MB以下のファイルを指定してください
+
+※サーバのconfig.jsonを書き換えた場合はサーバの再起動が必要

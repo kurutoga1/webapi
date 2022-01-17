@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Load Balance Top Page</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+    <script src="/static/js/main.js"></script>
+    <link rel="icon" type="image/x-icon" href="/static/img/favicon.png">
+</head>
+
+<body>
+<p>Hello Top</p>
+<table border="1" id="pro-table">
+    <tr>
+        <th>プログラム</th>
+        <th>ヘルプ</th>
+        <th>実行画面へ</th>
+    </tr>
+    {{ range .ProInfos }}
+    <tr>
+        <td>{{ .Name }}</td>
+        <td>{{ .Help }}</td>
+        <td>
+            <form action="{{ .URL }}/user/prepareExec" method="post">
+                <input type="hidden" name="proName" value="{{ .Name }}" />
+                <input type="submit" value="実行画面へ" id="button"/>
+            </form>
+        </td>
+    </tr>
+    {{ end }}
+</table>
+</body>
+
+</html>

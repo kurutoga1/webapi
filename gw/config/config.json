@@ -1,0 +1,13 @@
+{
+  "ExpectedAliveServers": [
+    "http://127.0.0.1:8885",
+    "http://127.0.0.1:8886",
+    "http://127.0.0.1:8887"
+  ],
+  "GetMemoryEndPoint": "/json/health/memory",
+  "LoadBalancerServerIP": "127.0.0.1",
+  "LoadBalancerServerPort": "8001",
+  "LogPath": "./log.txt",
+  "RotateMaxKB": 10,
+  "RotateShavingKB": 5
+}

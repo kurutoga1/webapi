@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+    <link rel="icon" type="image/x-icon" href="/static/img/favicon.png">
+    <title>Document</title>
+</head>
+
+<body>
+    <p>Result of {{ .Name }}</p>
+    <p>Result: {{ .Result }}</p>
+    <p>ErrMsg: {{ .Errmsg }}</p>
+    <p>Stdout: </p>
+    <textarea rows="15" cols="100">
+        {{ .Stdout }}
+    </textarea>
+    <p>
+        {{ .DownloadLimitSecondTime }}秒経過するとダウンロードできなくなります。
+    </p>
+    <button onclick="allDownload('{{ .OutURLs }}')">
+      一括ダウンロード(ブラウザの一括ダウンロードを許可する必要があります。)
+    </button>
+    <br /><br />
+    <table border="1">
+        <tr>
+            <th>出力ファイル名</th>
+            <th>ダウンロード</th>
+        </tr>
+        {{ range .OutURLs}}
+        <tr>
+            <td>{{ . }}</td>
+            <td>
+                <!-- // テキストファイルはダウンロードできない。 -->
+                <button onclick="doDownload('{{ . }}');">download</button>
+            </td>
+        </tr>
+        {{ end }}
+    </table>
+
+    <script type="text/javascript">
+        function basename(path) {
+            return path.replace(/.*\//, "");
+        }
+
+        // URLを受け取りブラウザ上でダウンロードを実施する
+        function doDownload(url) {
+            console.log("do download");
+            console.log(url);
+            var alink = document.createElement("a");
+            alink.download = basename(url); // [download] のファイル名
+            alink.href = url; // サーバのファイルのURL
+            document.body.appendChild(alink);
+            alink.click(); // クリック実行
+            document.body.removeChild(alink);
+            console.log(alink);
+        }
+
+        // URLのリストのような文字列を受けとり、URLごと分割し、全てダウンロードする。
+        function allDownload(URLs) {
+            const urls = URLs.split(" ");
+            for (let i = 0; i < urls.length; i++) {
+                url = urls[i].replace("[", "").replace("]", "");
+                doDownload(url);
+            }
+        }
+    </script>
+</body>
+
+</html>

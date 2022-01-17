@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Load Balance Top Page</title>
+</head>
+
+<body>
+<p>Hello Top</p>
+<table border="1">
+    <tr>
+        <th>プログラム名</th>
+        <th>ヘルプ</th>
+        <th>実行画面へ</th>
+    </tr>
+    {{ range .ProInfos }}
+    <tr>
+        <td>{{ .Name }}</td>
+        <td>{{ .Help }}</td>
+        <td>
+            <form action="{{ .URL }}/user/prepareExec" method="post">
+                <input type="hidden" name="proName" value="{{ .Name }}" />
+                <input type="submit" value="実行画面へ" />
+            </form>
+        </td>
+    </tr>
+    {{ end }}
+</table>
+</body>
+
+</html>
