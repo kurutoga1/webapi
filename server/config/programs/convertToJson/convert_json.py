@@ -1,6 +1,7 @@
 import os
 import sys
 import shutil
+import time
 
 print(sys.argv)
 infile = sys.argv[1]
@@ -9,7 +10,7 @@ output_dir = sys.argv[2]
 print(output_dir)
 
 print("process start")
-# time.sleep(0)
+time.sleep(1)
 print("process end")
 
 # raise BaseException("python is error")

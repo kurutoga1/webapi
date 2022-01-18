@@ -5,8 +5,8 @@
 }
 .loading-bar {
     display: inline-block;
-    width: 4px;
-    height: 18px;
+    width: 16px; /*ロードバーの太さを決める。 */
+    height: 72px; /*ロードバーの長さを決める。 */
     border-radius: 4px;
     animation: loading 1s ease-in-out infinite;
 }
