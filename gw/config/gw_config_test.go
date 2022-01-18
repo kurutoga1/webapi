@@ -16,9 +16,9 @@ func TestNewServerConfig(t *testing.T) {
 
 	servers := cfg.Servers
 	wantServers := []string{
-		"http://127.0.0.1:8885",
-		"http://127.0.0.1:8886",
-		"http://127.0.0.1:8887",
+		"http://127.0.0.1:8081",
+		"http://127.0.0.1:8082",
+		"http://127.0.0.1:8083",
 	}
 	if !reflect.DeepEqual(servers, wantServers) {
 		t.Errorf("cfg.Servers: %v, want: %v \n", servers, wantServers)
