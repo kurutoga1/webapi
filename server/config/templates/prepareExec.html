@@ -5,8 +5,12 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="/static/css/body.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/table.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/button.css">
     <link rel="stylesheet" type="text/css" href="/static/css/google.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/input_text.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/input_file.css">
     <link rel="icon" type="image/x-icon" href="/static/img/favicon.png">
     <title>Document</title>
 </head>
@@ -25,13 +29,18 @@
     <p>Program Name {{ .Name }}</p>
     <form id="form" enctype="multipart/form-data" action="/user/exec" method="POST">
         <input type="hidden" name="proName" value="{{ .Name }}" />
-        <input type="text" name="parameta" value="" placeholder="パラメータ" />
+        <div class="cp_iptxt">
+            <label class="ef">
+                <input type="text" name="parameta" value="" placeholder="パラメータ"/>
+            </label>
+        </div>
+
         <br /><br />
-        <div id="drop-zone" style="border: 1px solid; padding: 30px">
-            <input type="file" name="file" id="file-input" multiple />
+        <div id="drop-zone" style="border: 5px dashed #2F4F4F; padding: 30px">
+            <input type="file" name="file" id="file-input"  multiple required/>
         </div>
         <br /><br />
-        <button class="button" type="submit" onclick="executeSubmit();">実行</button>
+        <button class="btn btn-gradient" type="submit" onclick="executeSubmit();">実行</button>
     </form>
 
     <script>

@@ -1,8 +1,8 @@
 {
   "ExpectedAliveServers": [
-    "http://127.0.0.1:8885",
-    "http://127.0.0.1:8886",
-    "http://127.0.0.1:8887"
+    "http://127.0.0.1:8081",
+    "http://127.0.0.1:8082",
+    "http://127.0.0.1:8083"
   ],
   "GetMemoryEndPoint": "/json/health/memory",
   "LoadBalancerServerIP": "127.0.0.1",

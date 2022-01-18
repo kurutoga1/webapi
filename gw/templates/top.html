@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Load Balance Top Page</title>
-    <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/body.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/table.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/button.css">
     <script src="/static/js/main.js"></script>
     <link rel="icon" type="image/x-icon" href="/static/img/favicon.png">
 </head>
@@ -14,18 +16,16 @@
     <tr>
         <th>プログラム</th>
         <th>ヘルプ</th>
-        <th>実行画面へ</th>
     </tr>
     {{ range .ProInfos }}
     <tr>
-        <td>{{ .Name }}</td>
-        <td>{{ .Help }}</td>
         <td>
             <form action="{{ .URL }}/user/prepareExec" method="post">
                 <input type="hidden" name="proName" value="{{ .Name }}" />
-                <input type="submit" value="実行画面へ" id="button"/>
+                <input type="submit" value="{{ .Name }}" class="btn btn-gradient"/>
             </form>
         </td>
+        <td>{{ .Help }}</td>
     </tr>
     {{ end }}
 </table>
