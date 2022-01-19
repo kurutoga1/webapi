@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 	"sync"
-	"webapi/utils"
+	"webapi/utils/file"
 )
 
 type Rotater interface {
@@ -40,7 +40,7 @@ func (l *logRotater) Rotate() error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	if !utils.FileExists(l.logFile) {
+	if !file.FileExists(l.logFile) {
 		return errors.New(l.logFile + "is not found.")
 	}
 

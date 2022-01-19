@@ -7,7 +7,7 @@ package outputManager
 import (
 	"fmt"
 	"io"
-	"webapi/utils"
+	"webapi/utils/file"
 )
 
 // OutputManager はコマンド実行結果を格納した構造体のインターフェース
@@ -60,7 +60,7 @@ func (o *OutputInfo) SetOutURLs(s []string) { o.OutputURLs = s }
 // SetStdOut io.ReaderとbufferSizeをもらい、bufferSizeがマックスとして読み込み、
 // セットする。
 func (o *OutputInfo) SetStdOut(r io.Reader, bufferSize int) error {
-	stdout, err := utils.ReadBytesWithSize(r, bufferSize)
+	stdout, err := file.ReadBytesWithSize(r, bufferSize)
 	if err != nil {
 		return fmt.Errorf("SetStdOut: %v", err)
 	}
@@ -71,7 +71,7 @@ func (o *OutputInfo) SetStdOut(r io.Reader, bufferSize int) error {
 // SetStdErr io.ReaderとbufferSizeをもらい、bufferSizeがマックスとして読み込み、
 // セットする。
 func (o *OutputInfo) SetStdErr(r io.Reader, bufferSize int) error {
-	stderr, err := utils.ReadBytesWithSize(r, bufferSize)
+	stderr, err := file.ReadBytesWithSize(r, bufferSize)
 	if err != nil {
 		return fmt.Errorf("SetStdErr: %v", err)
 	}

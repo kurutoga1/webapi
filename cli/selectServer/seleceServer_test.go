@@ -26,17 +26,17 @@ func init() {
 
 	// 下の３つのポートはgw/config/config.jsonの設定値と同じにしなければならない。
 	go func() {
-		if err := http.ListenAndServe(":8885", sh.GetServeMux("fileserver")); err != nil {
+		if err := http.ListenAndServe(":8081", sh.GetServeMux("fileserver")); err != nil {
 			panic(err.Error())
 		}
 	}()
 	go func() {
-		if err := http.ListenAndServe(":8886", sh.GetServeMux("fileserver")); err != nil {
+		if err := http.ListenAndServe(":8082", sh.GetServeMux("fileserver")); err != nil {
 			panic(err.Error())
 		}
 	}()
 	go func() {
-		if err := http.ListenAndServe(":8887", sh.GetServeMux("fileserver")); err != nil {
+		if err := http.ListenAndServe(":8083", sh.GetServeMux("fileserver")); err != nil {
 			panic(err.Error())
 		}
 	}()
@@ -73,7 +73,7 @@ func TestSelectServer(t *testing.T) {
 		t.Errorf("err from Select(): %v \n", err.Error())
 	}
 
-	serverPorts := []string{"8885", "8886", "8887"}
+	serverPorts := []string{"8081", "8082", "8083"}
 	if !contains(serverPorts, serverURL) {
 		t.Errorf("%v doesn't contain of %v \n", serverURL, serverPorts)
 	}

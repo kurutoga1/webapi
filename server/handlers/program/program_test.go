@@ -15,6 +15,7 @@ import (
 	"webapi/server/handlers/program"
 	"webapi/server/outputManager"
 	"webapi/utils"
+	"webapi/utils/file"
 )
 
 var (
@@ -42,7 +43,7 @@ func set() {
 		}
 	}()
 
-	err = utils.CreateSpecifiedFile(uploadFile, 200)
+	err = file.CreateSpecifiedFile(uploadFile, 200)
 	if err != nil {
 		panic(err.Error())
 	}

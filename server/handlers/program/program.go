@@ -17,7 +17,7 @@ import (
 	"webapi/server/execution/executer"
 	"webapi/server/execution/msgs"
 	"webapi/server/outputManager"
-	"webapi/utils"
+	"webapi/utils/file"
 )
 
 var cfg = config.Load()
@@ -82,7 +82,7 @@ func ProgramHandler(w http.ResponseWriter, r *http.Request) {
 	// このリクエストがくる前にuploadディレクトリにアップロードは完了しているのでbasenameを使用しパスをつなげる。
 	uploadedDir := filepath.Join(cfg.FileServer.Dir, cfg.FileServer.UploadDir)
 	uploadedFilePath := filepath.Join(uploadedDir, u.Filename)
-	if !utils.FileExists(uploadedFilePath) {
+	if !file.FileExists(uploadedFilePath) {
 		err := errors.New("アップロードファイルが見つかりません。path: " + uploadedFilePath)
 		logf(err.Error())
 		http.Error(w, err.Error(), 500)

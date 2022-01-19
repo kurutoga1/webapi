@@ -17,6 +17,7 @@ import (
 	"webapi/server/execution/msgs"
 	sh "webapi/server/handlers"
 	"webapi/utils"
+	"webapi/utils/file"
 )
 
 var (
@@ -47,7 +48,7 @@ func init() {
 		}
 	}()
 
-	err = utils.CreateSpecifiedFile(uploadFile, 200)
+	err = file.CreateSpecifiedFile(uploadFile, 200)
 	if err != nil {
 		panic(err.Error())
 	}

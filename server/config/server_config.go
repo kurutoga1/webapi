@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"path/filepath"
-	"webapi/utils"
+	"webapi/utils/file"
 )
 
 var (
@@ -67,7 +67,7 @@ func Load() *Config {
 	// 構造体を初期化
 	conf := new(Config)
 
-	if !utils.FileExists(configFilePath) {
+	if !file.FileExists(configFilePath) {
 		// configFilePathが存在しない場合は２通りある。
 		// 1つはシンプルにプログラムサーバにconfig.jsonを配置していない場合
 		// もう一つはgwをビルドしてこのLoad()関数が呼ばれたけどgwのため、同じディレクトリにconfig.jsonがない場合

@@ -27,6 +27,7 @@ import (
 	"webapi/gw/minimumServerSelector"
 	"webapi/gw/serverAliveConfirmer"
 	utils2 "webapi/utils"
+	"webapi/utils/file"
 	log2 "webapi/utils/log"
 
 	cp "webapi/cli/arrangeAllProgramJSON"
@@ -154,7 +155,7 @@ func main() {
 	}
 
 	// 入力ファイル存在確認
-	if !utils2.FileExists(inputFile) {
+	if !file.FileExists(inputFile) {
 		fmt.Printf("no such file or directory: %v\n", inputFile)
 		os.Exit(1)
 	}

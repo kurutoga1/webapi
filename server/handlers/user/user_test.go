@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 	"webapi/server/handlers/user"
-	"webapi/utils"
+	"webapi/utils/file"
 )
 
 var (
@@ -61,7 +61,7 @@ func TestPrepareExecHandler(t *testing.T) {
 
 func TestExecHandler(t *testing.T) {
 	uploadFile = "uploadfile"
-	err := utils.CreateSpecifiedFile(uploadFile, 2)
+	err := file.CreateSpecifiedFile(uploadFile, 2)
 	if err != nil {
 		panic(err.Error())
 	}

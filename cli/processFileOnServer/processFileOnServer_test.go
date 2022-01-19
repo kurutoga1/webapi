@@ -11,6 +11,7 @@ import (
 	u "webapi/cli/upload"
 	sh "webapi/server/handlers"
 	"webapi/utils"
+	"webapi/utils/file"
 )
 
 var (
@@ -40,7 +41,7 @@ func tearDown() {
 
 func TestProcessFileOnServer(t *testing.T) {
 	// create upload file
-	err := utils.CreateSpecifiedFile(uploadFile, 200)
+	err := file.CreateSpecifiedFile(uploadFile, 200)
 	if err != nil {
 		t.Errorf("err from CreateSpecifiedFile: %v \n", err.Error())
 	}

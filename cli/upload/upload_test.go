@@ -8,6 +8,7 @@ import (
 	u "webapi/cli/upload"
 	"webapi/tests"
 	"webapi/utils"
+	"webapi/utils/file"
 )
 
 var (
@@ -36,7 +37,7 @@ func tearDown() {
 }
 
 func TestUpload(t *testing.T) {
-	err := utils.CreateSpecifiedFile(uploadFile, 200)
+	err := file.CreateSpecifiedFile(uploadFile, 200)
 	if err != nil {
 		t.Errorf("err from CreateSpecifiedFile: %v \n", err.Error())
 	}
@@ -48,7 +49,7 @@ func TestUpload(t *testing.T) {
 	}
 
 	uploadedFilePath := filepath.Join(currentDir, "fileserver", "upload", uploadFile)
-	if !utils.FileExists(uploadedFilePath) {
+	if !file.FileExists(uploadedFilePath) {
 		t.Errorf("uploadedPath(%v) is not exists. \n", uploadedFilePath)
 	}
 

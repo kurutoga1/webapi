@@ -16,6 +16,7 @@ import (
 	"path/filepath"
 	"webapi/server/config"
 	utils2 "webapi/utils"
+	"webapi/utils/file"
 	log2 "webapi/utils/log"
 )
 
@@ -89,7 +90,7 @@ func NewContextManager(proName, uploadedFilePath, parameta string, cfg *config.C
 		return nil, fmt.Errorf("%v: %v", fName, err)
 	}
 
-	if !utils2.FileExists(uploadedFilePath) {
+	if !file.FileExists(uploadedFilePath) {
 		return nil, fmt.Errorf("%v: %v", fName, errors.New(uploadedFilePath+" is not found."))
 	}
 	ctx.SetUploadedFilePath(uploadedFilePath)
@@ -167,7 +168,7 @@ func (c *contextManager) SetInputFilePath() error {
 		return fmt.Errorf("SetInputFilePath: %v", err)
 	}
 	c.inputFilePath = inputFilePath
-	if !utils2.FileExists(c.inputFilePath) {
+	if !file.FileExists(c.inputFilePath) {
 		return fmt.Errorf("SetInputFilePath: %v", errors.New(c.inputFilePath+"is not found."))
 	}
 	return nil

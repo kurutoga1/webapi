@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"testing"
 	"webapi/server/handlers/upload"
-	"webapi/utils"
+	uf "webapi/utils/file"
 )
 
 var (
@@ -20,8 +20,8 @@ var (
 
 func init() {
 	uploadFile = "200MB.txt"
-	if !utils.FileExists(uploadFile) {
-		err := utils.CreateSpecifiedFile(uploadFile, 200000)
+	if !uf.FileExists(uploadFile) {
+		err := uf.CreateSpecifiedFile(uploadFile, 200000)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -62,7 +62,7 @@ func TestUploadHandler(t *testing.T) {
 
 	// アップロードされているか
 	uploadedPath := filepath.Join("fileserver", "upload", uploadFile)
-	if !utils.FileExists(uploadedPath) {
+	if !uf.FileExists(uploadedPath) {
 		t.Errorf("uploadedPath(%v) is not exist.", uploadedPath)
 	}
 

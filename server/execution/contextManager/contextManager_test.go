@@ -16,6 +16,7 @@ import (
 	ec "webapi/server/execution/contextManager"
 	"webapi/tests"
 	"webapi/utils"
+	"webapi/utils/file"
 )
 
 var (
@@ -46,7 +47,7 @@ func init() {
 		panic(err)
 	}
 
-	err = utils.CreateSpecifiedFile(uploadFile, 200)
+	err = file.CreateSpecifiedFile(uploadFile, 200)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -111,7 +112,7 @@ func TestNewContextManager(t *testing.T) {
 	if filepath.Base(ctx.InputFilePath()) != uploadFile {
 		t.Errorf("ctx.InputFilePath(): %v , want: %v \n", filepath.Base(ctx.InputFilePath()), uploadFile)
 	}
-	if !utils.FileExists(ctx.InputFilePath()) {
+	if !file.FileExists(ctx.InputFilePath()) {
 		t.Errorf("ctx.InputFilePath(%v) is not found \n", ctx.InputFilePath())
 	}
 

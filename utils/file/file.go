@@ -1,7 +1,8 @@
-package utils
+package file
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"os"
 )
@@ -22,19 +23,19 @@ func CreateSpecifiedFile(path string, kb int64) error {
 	size := int64(1024 * kb)
 	fd, err := os.Create(path)
 	if err != nil {
-		return err
+		return fmt.Errorf("CreateSpecifiedFile: %v", err)
 	}
 	_, err = fd.Seek(size-1, 0)
 	if err != nil {
-		return err
+		return fmt.Errorf("CreateSpecifiedFile: %v", err)
 	}
 	_, err = fd.Write([]byte{0})
 	if err != nil {
-		return err
+		return fmt.Errorf("CreateSpecifiedFile: %v", err)
 	}
 	err = fd.Close()
 	if err != nil {
-		return err
+		return fmt.Errorf("CreateSpecifiedFile: %v", err)
 	}
 	return nil
 }
@@ -44,7 +45,7 @@ func ReadBytesWithSize(r io.Reader, bufferSize int) (string, error) {
 	buffer := make([]byte, bufferSize)
 	if _, err := r.Read(buffer); err != nil {
 		if err != io.EOF {
-			return "", err
+			return "", fmt.Errorf("ReadBytesWithSize: %v", err)
 		}
 	}
 
@@ -59,4 +60,30 @@ func ReadBytesWithSize(r io.Reader, bufferSize int) (string, error) {
 	}
 
 	return string(b), nil
+}
+
+// Move ファイルを移動させる
+// os.Renameはパーティションを飛び越えてファイルのrenameは出来ないため。
+func Move(sourcePath, destPath string) error {
+	inputFile, err := os.Open(sourcePath)
+	if err != nil {
+		return fmt.Errorf("MoveFile: %s", err)
+	}
+	outputFile, err := os.Create(destPath)
+	if err != nil {
+		inputFile.Close()
+		return fmt.Errorf("MoveFile: %s", err)
+	}
+	defer outputFile.Close()
+	_, err = io.Copy(outputFile, inputFile)
+	inputFile.Close()
+	if err != nil {
+		return fmt.Errorf("MoveFile: %s", err)
+	}
+	// The copy was successful, so now delete the original file
+	err = os.Remove(sourcePath)
+	if err != nil {
+		return fmt.Errorf("MoveFile: %s", err)
+	}
+	return nil
 }
