@@ -45,6 +45,11 @@ type ContextManager interface {
 	// SetProgramName 実行するプログラム名を設定する。
 	SetProgramName(string)
 
+	// ProgramTempDir プログラムが作業するテンポラリディレクトリ
+	ProgramTempDir() string
+	// SetProgramTempDir プログラムが作業するテンポラリディレクトリを取得する
+	SetProgramTempDir(proConf config.ProgramConfigHolder, cfg *config.Config) error
+
 	// OutputDir プログラムがファイルを出力するディレクトリを返す。
 	OutputDir() string
 	// SetOutputDir プログラムがファイルを出力するディレクトリを設定する。
@@ -85,7 +90,12 @@ func NewContextManager(proName, uploadedFilePath, parameta string, cfg *config.C
 	}
 	ctx.SetProgramConfig(proConf)
 
-	err = ctx.SetProgramOutDir(proConf, cfg)
+	err = ctx.SetProgramTempDir(proConf, cfg)
+	if err != nil {
+		return nil, fmt.Errorf("%v: %v", fName, err)
+	}
+
+	err = ctx.SetProgramOutDir()
 	if err != nil {
 		return nil, fmt.Errorf("%v: %v", fName, err)
 	}
@@ -110,6 +120,7 @@ func NewContextManager(proName, uploadedFilePath, parameta string, cfg *config.C
 
 type contextManager struct {
 	programName      string
+	programTempDir   string
 	outputDir        string
 	parameta         string
 	uploadedFilePath string
@@ -121,19 +132,29 @@ type contextManager struct {
 	cfg              *config.Config
 }
 
-// SetProgramOutDir はプログラムが出力するディレクトリを用意する。
-func (c *contextManager) SetProgramOutDir(proConf config.ProgramConfigHolder, cfg *config.Config) error {
-	// プログラムが出力するディレクトリを準備する。なければ作成する. 同じディレクトリがあったら処理はまだ加えていない。
-	outDirName := utils2.GetNowTimeStringWithHyphen() + "-" + utils2.GetRandomString(20)
-	Logger.Printf("program outDirName: %v\n", outDirName)
-	programDir := filepath.Join(cfg.FileServer.Dir, cfg.FileServer.ProgramOutDir, proConf.Name(), outDirName)
-	programOutDir := filepath.Join(programDir, "out")
-	Logger.Printf("program outDir path: %v\n", programOutDir)
+// SetProgramOutDir はプログラムが出力するディレクトリを作成、セットする。
+// SetProgramTempDirの後に実行されなければいけない
+func (c *contextManager) SetProgramOutDir() error {
+	if c.programTempDir == "" {
+		return fmt.Errorf("c.programTempDir is not set. you shoud SetProgrtamTempDir before me.")
+	}
+	programOutDir := filepath.Join(c.programTempDir, "out")
 	c.outputDir = programOutDir
 	err := os.MkdirAll(programOutDir, os.ModePerm)
 	if err != nil {
-		Logger.Printf("error msg: %v\n", err.Error())
-		return err
+		return fmt.Errorf("SetProgramOutDir: %v", err)
+	}
+	return nil
+}
+
+// SetProgramTempDir 登録プログラムが使用する作業ディレクトリとして使用する日付とランダム文字列から作成されたテンポラリディレクトリを作成、セットする
+func (c *contextManager) SetProgramTempDir(proConf config.ProgramConfigHolder, cfg *config.Config) error {
+	outDirName := utils2.GetNowTimeStringWithHyphen() + "-" + utils2.GetRandomString(20)
+	programDir := filepath.Join(cfg.FileServer.Dir, cfg.FileServer.ProgramOutDir, proConf.Name(), outDirName)
+	c.programTempDir = programDir
+	err := os.MkdirAll(programDir, os.ModePerm)
+	if err != nil {
+		return fmt.Errorf("SetProgramTempDir: %v", err)
 	}
 	return nil
 }
@@ -144,6 +165,8 @@ func (c *contextManager) Command() string { return c.command }
 
 func (c *contextManager) ProgramName() string     { return c.programName }
 func (c *contextManager) SetProgramName(s string) { c.programName = s }
+
+func (c *contextManager) ProgramTempDir() string { return c.programTempDir }
 
 func (c *contextManager) OutputDir() string     { return c.outputDir }
 func (c *contextManager) SetOutputDir(s string) { c.outputDir = s }

@@ -61,7 +61,7 @@ func (f *fileExecuter) Execute(ctx contextManager.ContextManager) (out outputMan
 
 	// 時間経過後ファイルを削除
 	go func() {
-		err := DeleteDirSomeTimeLater(ctx.OutputDir(), ctx.Config().DeleteProcessedFileLimitSecondTime)
+		err := DeleteDirSomeTimeLater(ctx.ProgramTempDir(), ctx.Config().DeleteProcessedFileLimitSecondTime)
 		if err != nil {
 			fmt.Printf("Execute: %v \n", err)
 		}
