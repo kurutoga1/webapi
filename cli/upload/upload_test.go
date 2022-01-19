@@ -7,7 +7,6 @@ import (
 	"testing"
 	u "webapi/cli/upload"
 	"webapi/tests"
-	"webapi/utils"
 	"webapi/utils/file"
 )
 
@@ -18,7 +17,7 @@ var (
 )
 
 func init() {
-	c, err := utils.GetCurrentDir()
+	c, err := file.GetCurrentDir()
 	if err != nil {
 		log.Fatalln(err.Error())
 	}

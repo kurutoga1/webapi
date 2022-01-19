@@ -12,7 +12,7 @@ import (
 	"webapi/gw/minimumServerSelector"
 	gp "webapi/gw/programHasServers"
 	sc "webapi/gw/serverAliveConfirmer"
-	"webapi/utils"
+	http2 "webapi/utils/http"
 )
 
 var (
@@ -128,7 +128,7 @@ func UserTopHandler(w http.ResponseWriter, r *http.Request) {
 	endPoint := "/json/program/all"
 	allServerMaps, err = allProgramGetter.Get(aliveServers, endPoint)
 
-	logf("programs of all server: %v ", utils.GetKeysFromMap(allServerMaps))
+	logf("programs of all server: %v ", http2.GetKeysFromMap(allServerMaps))
 
 	type tmpProInfo struct {
 		Help    string `json:"help"`

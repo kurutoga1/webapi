@@ -19,7 +19,7 @@ import (
 	"webapi/server/execution/contextManager"
 	"webapi/server/execution/msgs"
 	"webapi/server/outputManager"
-	"webapi/utils"
+	"webapi/utils/http"
 )
 
 // Executer はコマンドを実行する構造体のインタフェース
@@ -168,7 +168,7 @@ func GetOutFileURLs(outputDir string, serverIP, serverPort, fileServerDir string
 
 	outFileURLs := make([]string, 0, 20)
 	for _, outfile := range outFiles {
-		outFileURL, err := utils.GetURLFromFilePath(outfile, serverIP, serverPort, fileServerDir)
+		outFileURL, err := http.GetURLFromFilePath(outfile, serverIP, serverPort, fileServerDir)
 		if err != nil {
 			return nil, fmt.Errorf("GetOutFileURLs: %v", err)
 		}

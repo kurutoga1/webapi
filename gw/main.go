@@ -7,7 +7,7 @@ import (
 	"sync"
 	"webapi/gw/config"
 	"webapi/gw/handlers"
-	"webapi/utils"
+	int2 "webapi/utils/int"
 	log2 "webapi/utils/log"
 )
 
@@ -31,7 +31,7 @@ func main() {
 
 	router := handlers.GetServeMux()
 
-	rotater := log2.NewLogRotater(utils.KBToByte(cfg.RotateShavingKB), utils.KBToByte(cfg.RotateMaxKB), &logMu, logger, cfg.LogPath)
+	rotater := log2.NewLogRotater(int2.KBToByte(cfg.RotateShavingKB), int2.KBToByte(cfg.RotateMaxKB), &logMu, logger, cfg.LogPath)
 
 	if err := http.ListenAndServe(addr, log2.RotateMiddleware(log2.HttpTraceMiddleware(router, logger), rotater)); err != nil {
 		panic(fmt.Errorf("[FAILED] start sever. err: %v", err))

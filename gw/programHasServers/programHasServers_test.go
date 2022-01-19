@@ -8,7 +8,7 @@ import (
 	"testing"
 	gp "webapi/gw/programHasServers"
 	"webapi/tests"
-	"webapi/utils"
+	"webapi/utils/file"
 )
 
 var (
@@ -17,7 +17,7 @@ var (
 )
 
 func init() {
-	c, err := utils.GetCurrentDir()
+	c, err := file.GetCurrentDir()
 	if err != nil {
 		log.Fatalln(err.Error())
 	}

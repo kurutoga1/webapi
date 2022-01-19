@@ -10,7 +10,6 @@ import (
 	p "webapi/cli/processFileOnServer"
 	u "webapi/cli/upload"
 	sh "webapi/server/handlers"
-	"webapi/utils"
 	"webapi/utils/file"
 )
 
@@ -20,7 +19,7 @@ var (
 )
 
 func init() {
-	c, err := utils.GetCurrentDir()
+	c, err := file.GetCurrentDir()
 	if err != nil {
 		log.Fatalln(err.Error())
 	}

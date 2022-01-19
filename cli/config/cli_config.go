@@ -8,14 +8,13 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"path/filepath"
-
-	"webapi/utils"
+	"webapi/utils/file"
 )
 
 var serversConfigPath string
 
 func SetConfPath(confName string) {
-	currentDir, err := utils.GetCurrentDir()
+	currentDir, err := file.GetCurrentDir()
 	if err != nil {
 		panic("err msg: " + err.Error())
 	}

@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
-	"webapi/utils"
+	"webapi/utils/kernel"
 )
 
 var (
@@ -31,7 +31,7 @@ type downloader struct{}
 func (d *downloader) Download(url, outputDir string, done chan error, wg *sync.WaitGroup) {
 	defer wg.Done() // 関数終了時にデクリメント
 	command := "curl -OL " + url
-	_, _, err := utils.Exec(command)
+	_, _, err := kernel.Exec(command)
 	if err != nil {
 		done <- err
 		return

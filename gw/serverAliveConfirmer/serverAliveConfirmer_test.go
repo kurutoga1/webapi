@@ -8,14 +8,14 @@ import (
 	"testing"
 	"webapi/gw/serverAliveConfirmer"
 	"webapi/tests"
-	"webapi/utils"
+	"webapi/utils/file"
 )
 
 var currentDir string
 var confirmer serverAliveConfirmer.ServerAliveConfirmer
 
 func init() {
-	c, err := utils.GetCurrentDir()
+	c, err := file.GetCurrentDir()
 	if err != nil {
 		log.Fatalln(err.Error())
 	}

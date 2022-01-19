@@ -16,7 +16,6 @@ import (
 	executer2 "webapi/server/execution/executer"
 	"webapi/server/execution/msgs"
 	sh "webapi/server/handlers"
-	"webapi/utils"
 	"webapi/utils/file"
 )
 
@@ -33,7 +32,7 @@ var (
 func init() {
 	cfg = config.Load()
 	executer = executer2.NewExecuter()
-	c, err := utils.GetCurrentDir()
+	c, err := file.GetCurrentDir()
 	if err != nil {
 		log.Fatalln(err.Error())
 	}

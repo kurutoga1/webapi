@@ -8,7 +8,7 @@ import (
 	gg "webapi/gw/getAllPrograms"
 	gs "webapi/gw/serverAliveConfirmer"
 	"webapi/tests"
-	"webapi/utils"
+	"webapi/utils/file"
 )
 
 var currentDir string
@@ -16,7 +16,7 @@ var addrs []string
 var ports []string
 
 func init() {
-	c, err := utils.GetCurrentDir()
+	c, err := file.GetCurrentDir()
 	if err != nil {
 		log.Fatalln(err.Error())
 	}

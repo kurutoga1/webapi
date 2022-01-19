@@ -14,8 +14,8 @@ import (
 	sh "webapi/server/handlers"
 	"webapi/server/handlers/program"
 	"webapi/server/outputManager"
-	"webapi/utils"
 	"webapi/utils/file"
+	http2 "webapi/utils/http"
 )
 
 var (
@@ -24,18 +24,18 @@ var (
 )
 
 func set() {
-	c, err := utils.GetCurrentDir()
+	c, err := file.GetCurrentDir()
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
 	currentDir = c
 	uploadFile = "uploadfile"
 
-	addr, err := utils.GetLoopBackURL()
+	addr, err := http2.GetLoopBackURL()
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	port := utils.GetPortFromURL(addr)
+	port := http2.GetPortFromURL(addr)
 
 	go func() {
 		if err := http.ListenAndServe(":"+port, sh.GetServeMux("fileserver")); err != nil {

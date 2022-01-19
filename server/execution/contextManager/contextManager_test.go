@@ -15,7 +15,6 @@ import (
 	"webapi/server/config"
 	ec "webapi/server/execution/contextManager"
 	"webapi/tests"
-	"webapi/utils"
 	"webapi/utils/file"
 )
 
@@ -32,7 +31,7 @@ var (
 var cfg *config.Config
 
 func init() {
-	c, err := utils.GetCurrentDir()
+	c, err := file.GetCurrentDir()
 	if err != nil {
 		log.Fatalln(err.Error())
 	}

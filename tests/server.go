@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 	sh "webapi/server/handlers"
-	"webapi/utils"
+	http2 "webapi/utils/http"
 )
 
 // GetSomeStartedProgramServer
@@ -15,11 +15,11 @@ import (
 // ports: ["8001", "8002", "8003"]
 func GetSomeStartedProgramServer(numberOfServer int) (addrs, ports []string, err error) {
 	for (len(addrs) < numberOfServer && len(ports) < numberOfServer) || (addrs == nil && ports == nil) {
-		addr, err := utils.GetLoopBackURL()
+		addr, err := http2.GetLoopBackURL()
 		if err != nil {
 			return nil, nil, err
 		}
-		port := utils.GetPortFromURL(addr)
+		port := http2.GetPortFromURL(addr)
 
 		var done chan error
 		go func() {

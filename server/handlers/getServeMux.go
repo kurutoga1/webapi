@@ -9,7 +9,7 @@ import (
 	"webapi/server/handlers/program"
 	"webapi/server/handlers/upload"
 	"webapi/server/handlers/user"
-	"webapi/utils"
+	"webapi/utils/hanlders"
 )
 
 // GetServeMux ハンドラをセットしたrouterを返す。
@@ -38,13 +38,13 @@ func GetServeMux(fileServerDir string) *http.ServeMux {
 	router.HandleFunc("/user/exec", user.ExecHandler)
 
 	// このサーバプログラムのメモリ状態をJSONで表示するAPI
-	router.HandleFunc("/json/health/memory", utils.GetRuntimeHandler)
+	router.HandleFunc("/json/health/memory", hanlders.GetRuntimeHandler)
 
 	// プログラムサーバに登録してあるプログラム一覧をJSONで表示するAPI
 	router.HandleFunc("/json/program/all", program.ProgramAllHandler)
 
 	// このサーバが生きているかを判断するのに使用するハンドラ
-	router.HandleFunc("/health", utils.HealthHandler)
+	router.HandleFunc("/health", hanlders.HealthHandler)
 
 	return router
 }

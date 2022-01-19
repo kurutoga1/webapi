@@ -10,7 +10,7 @@ import (
 	"webapi/gw/minimumServerSelector"
 	sc "webapi/gw/serverAliveConfirmer"
 	"webapi/tests"
-	"webapi/utils"
+	"webapi/utils/file"
 )
 
 var (
@@ -27,7 +27,7 @@ var (
 func init() {
 	// サーバを立てるとカレントディレクトリにfileserverディレクトリとlog.txt
 	// ができるのでそれを削除する。
-	c, err := utils.GetCurrentDir()
+	c, err := file.GetCurrentDir()
 	if err != nil {
 		log.Fatalln(err.Error())
 	}

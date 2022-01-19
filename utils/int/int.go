@@ -1,4 +1,4 @@
-package utils
+package int
 
 func ByteToKB(b int) int {
 	return b / 1024

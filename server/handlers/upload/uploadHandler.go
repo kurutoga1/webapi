@@ -14,14 +14,14 @@ import (
 	"path/filepath"
 	"webapi/server/config"
 	msg "webapi/server/messages"
-	"webapi/utils"
+	int2 "webapi/utils/int"
 )
 
 var (
 	cfg config.Config = *config.Load()
 	// maxUploadSize はアップロードするファイルの上限の大きさ
 	//maxUploadSize int64 = cfg.MaxUploadSizeMB << 20 // 20がメガ表記になる。
-	maxUploadSize int64 = int64(utils.MBToByte(int(cfg.MaxUploadSizeMB)))
+	maxUploadSize int64 = int64(int2.MBToByte(int(cfg.MaxUploadSizeMB)))
 )
 
 // UploadHandler はファイルをアップロードするためのハンドラー。

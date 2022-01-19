@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"sync"
-	"webapi/utils"
+	int2 "webapi/utils/int"
 
 	"webapi/server/config"
 	"webapi/server/handlers"
@@ -34,7 +34,7 @@ func main() {
 	port := ":" + cfg.ServerPort
 	fmt.Printf("web server on %v%v\n", cfg.ServerIP, port)
 
-	rotater := ul.NewLogRotater(utils.KBToByte(cfg.Log.RotateShavingKB), utils.KBToByte(cfg.Log.RotateMaxKB), &logMu, logger, logFile)
+	rotater := ul.NewLogRotater(int2.KBToByte(cfg.Log.RotateShavingKB), int2.KBToByte(cfg.Log.RotateMaxKB), &logMu, logger, logFile)
 
 	if err := http.ListenAndServe(port, ul.RotateMiddleware(ul.HttpTraceMiddleware(router, logger), rotater)); err != nil {
 		panic(fmt.Errorf("[FAILED] start sever. err: %v", err))

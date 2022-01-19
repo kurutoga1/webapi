@@ -6,11 +6,11 @@ import (
 	"strings"
 	"testing"
 	"webapi/server/config"
-	"webapi/utils"
+	"webapi/utils/file"
 )
 
 func init() {
-	c, err := utils.GetCurrentDir()
+	c, err := file.GetCurrentDir()
 	if err != nil {
 		log.Fatalln(err.Error())
 	}

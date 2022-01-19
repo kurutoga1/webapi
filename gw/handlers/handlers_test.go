@@ -11,7 +11,7 @@ import (
 	"testing"
 	gh "webapi/gw/handlers"
 	sh "webapi/server/handlers"
-	"webapi/utils"
+	"webapi/utils/file"
 )
 
 /*
@@ -30,7 +30,7 @@ var (
 func init() {
 	// サーバを立てるとカレントディレクトリにfileserverディレクトリとlog.txt
 	// ができるのでそれを削除する。
-	c, err := utils.GetCurrentDir()
+	c, err := file.GetCurrentDir()
 	if err != nil {
 		log.Fatalln(err.Error())
 	}

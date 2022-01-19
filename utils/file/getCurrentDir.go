@@ -3,7 +3,7 @@ GetCurrentDirを定義したファイル
 GetCurrentDirはテストやconfig.jsonを読み込み際に使用する。
 */
 
-package utils
+package file
 
 import (
 	"fmt"
