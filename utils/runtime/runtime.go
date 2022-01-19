@@ -1,8 +1,8 @@
 /*
-プログラムサーバのランタイム(メモリ状況)を取得するパッケージ
+ランタイム(メモリ状況)を取得するパッケージ
 */
 
-package myRuntime
+package runtime
 
 import (
 	"encoding/json"

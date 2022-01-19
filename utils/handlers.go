@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"webapi/server/myRuntime"
+	"webapi/utils/runtime"
 )
 
 // HealthHandler はサーバが生きているか確認するだけのハンドラ
@@ -23,7 +23,7 @@ func HealthHandler(w http.ResponseWriter, r *http.Request) {
 
 // GetRuntimeHandler はこのサーバプログラムのメモリの状態をJSONで表示する
 func GetRuntimeHandler(w http.ResponseWriter, r *http.Request) {
-	runtimeGetter := myRuntime.NewRuntimeGetter()
+	runtimeGetter := runtime.NewRuntimeGetter()
 	runtimeJSON, err := runtimeGetter.GetRuntimeAsJSON()
 
 	if err != nil {
