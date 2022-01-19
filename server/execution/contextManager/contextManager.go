@@ -138,7 +138,8 @@ func (c *contextManager) SetProgramOutDir() error {
 	if c.programTempDir == "" {
 		return fmt.Errorf("c.programTempDir is not set. you shoud SetProgrtamTempDir before me.")
 	}
-	programOutDir := filepath.Join(c.programTempDir, "out")
+	randomName := utils2.GetRandomString(20) + "_out"
+	programOutDir := filepath.Join(c.programTempDir, randomName)
 	c.outputDir = programOutDir
 	err := os.MkdirAll(programOutDir, os.ModePerm)
 	if err != nil {

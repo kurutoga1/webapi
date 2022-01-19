@@ -116,16 +116,18 @@ func TestNewContextManager(t *testing.T) {
 		t.Errorf("ctx.InputFilePath(%v) is not found \n", ctx.InputFilePath())
 	}
 
-	if ctx.OutputDir() == "" {
-		t.Errorf("ctx.OutputDir() is not set.")
+	if !file.FileExists(ctx.OutputDir()) {
+		t.Errorf("ctx.OutputDir() is not found.")
 	}
 
 	if !reflect.DeepEqual(ctx.Config(), cfg) {
 		t.Errorf("ctx.Config(%v) is not equal cfg(%v) \n", ctx.Config(), cfg)
 	}
 
-	// executer_testでteardown()をするので問題ない。
-	// ここでteadown()をするとexecuter_test.goが成功しない。
+	if !file.FileExists(ctx.ProgramTempDir()) {
+		t.Errorf("ctx.ProgramTempDir is not found")
+	}
+
 	t.Cleanup(func() {
 		tearDown()
 	})

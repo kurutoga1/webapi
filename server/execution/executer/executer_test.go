@@ -155,5 +155,6 @@ func TestFileExecuter_DeleteOutputDir(t *testing.T) {
 		if err != nil {
 			t.Errorf("err from RemoveAll(): %v \n", err.Error())
 		}
+		tearDown()
 	})
 }
