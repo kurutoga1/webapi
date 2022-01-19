@@ -5,9 +5,9 @@
 package download
 
 import (
-	"os"
 	"path/filepath"
 	"sync"
+	"webapi/utils/file"
 	"webapi/utils/kernel"
 )
 
@@ -40,7 +40,7 @@ func (d *downloader) Download(url, outputDir string, done chan error, wg *sync.W
 	// 引数で指定された出力ディレクトリに移動させる
 	basename := filepath.Base(url)
 	newLocation := filepath.Join(outputDir, basename)
-	err = os.Rename(basename, newLocation)
+	err = file.Move(basename, newLocation)
 	if err != nil {
 		done <- err
 		return
