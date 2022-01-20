@@ -112,12 +112,10 @@ func Exec(command string, timeOut int, stdOutBufferSize, stdErrBufferSize int) (
 			return outputInfo, fmt.Errorf("Exec: %v ", err)
 		}
 		outputInfo.SetStatus(msgs.PROGRAMTIMEOUT)
-		//if err := outputInfo.SetStdOut(&stdout, cfg.StdoutBufferSize); err != nil {
 		if err := outputInfo.SetStdOut(&stdout, stdOutBufferSize); err != nil {
 			return outputInfo, fmt.Errorf("Exec: %v ", err)
 		}
 
-		//if err := outputInfo.SetStdErr(&stderr, cfg.StderrBufferSize); err != nil {
 		if err := outputInfo.SetStdErr(&stderr, stdErrBufferSize); err != nil {
 			return outputInfo, fmt.Errorf("Exec: %v ", err)
 		}
@@ -127,12 +125,10 @@ func Exec(command string, timeOut int, stdOutBufferSize, stdErrBufferSize int) (
 
 		// プログラムが設定した時間以内に終了した場合
 		outputInfo.SetStatus(msgs.OK)
-		//if err := outputInfo.SetStdOut(&stdout, cfg.StdoutBufferSize); err != nil {
 		if err := outputInfo.SetStdOut(&stdout, stdOutBufferSize); err != nil {
 			return outputInfo, fmt.Errorf("Exec: %v ", err)
 		}
 
-		//if err := outputInfo.SetStdErr(&stderr, cfg.StderrBufferSize); err != nil {
 		if err := outputInfo.SetStdErr(&stderr, stdErrBufferSize); err != nil {
 			return outputInfo, fmt.Errorf("Exec: %v ", err)
 		}
