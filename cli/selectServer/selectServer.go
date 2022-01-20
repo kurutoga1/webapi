@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -33,7 +34,7 @@ func (s *selector) Select(url string) (string, error) {
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			fmt.Printf("err: %v \n", err.Error())
+			log.Printf("Select: %v \n", err.Error())
 		}
 	}(resp.Body)
 
