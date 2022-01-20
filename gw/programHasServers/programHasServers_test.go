@@ -27,22 +27,6 @@ func init() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	//
-	//go func() {
-	//	if err := http.ListenAndServe(":8881", sh.GetServeMux("fileserver")); err != nil {
-	//		panic(err.Error())
-	//	}
-	//}()
-	//go func() {
-	//	if err := http.ListenAndServe(":8882", sh.GetServeMux("fileserver")); err != nil {
-	//		panic(err.Error())
-	//	}
-	//}()
-	//go func() {
-	//	if err := http.ListenAndServe(":8883", sh.GetServeMux("fileserver")); err != nil {
-	//		panic(err.Error())
-	//	}
-	//}()
 }
 
 func tearDown() {

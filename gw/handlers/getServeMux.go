@@ -8,7 +8,7 @@ import (
 func GetServeMux() *http.ServeMux {
 	router := http.NewServeMux()
 
-	// ユーザがwebにアクセスした場合はメモリ使用量が一番低いサーバへリダイレクトする。
+	// ユーザがこのハンドラにアクセスした場合は全てのサーバにアクセスし、全てのプログラムを表示する。
 	router.HandleFunc("/userTop", UserTopHandler)
 
 	router.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
