@@ -16,19 +16,26 @@
 </head>
 
 <body>
-    <p>Result of {{ .Name }}</p>
-    <p>Result: {{ .Result }}</p>
-    <p>ErrMsg: {{ .Errmsg }}</p>
-    <p>Stdout: </p>
-    <textarea rows="15" cols="100" style="font-size: 20px; font-family: 'Yu Gothic', '游ゴシック', YuGothic, '游ゴシック体', sans-serif">
+    <p>プログラム名: {{ .Name }}</p>
+    <p>結果: {{ .Result }}</p>
+    <p>エラーメッセージ: {{ .Errmsg }}</p>
+
+    <button class="btn btn-gradient" id="print-stdout" onclick="clickStdoutDisplay()">標準出力表示</button>
+    <textarea id="stdout-textarea" rows="15" cols="100" style="font-size: 20px; font-family: 'Yu Gothic', '游ゴシック', YuGothic, '游ゴシック体', sans-serif">
         {{ .Stdout }}
     </textarea>
+
+    <button class="btn btn-gradient" id="print-stderr" onclick="clickStderrDisplay()">標準エラー出力表示</button>
+    <textarea id="stderr-textarea" rows="10" cols="100" style="font-size: 20px; font-family: 'Yu Gothic', '游ゴシック', YuGothic, '游ゴシック体', sans-serif">
+        {{ .Stderr }}
+    </textarea>
+
     <p>
         {{ .DownloadLimitSecondTime }}秒経過するとダウンロードできなくなります。
     </p>
-    <button class="btn btn-gradient" onclick="allDownload('{{ .OutURLs }}')">
-      一括ダウンロード(ブラウザの一括ダウンロードを許可する必要があります。)
-    </button>
+<!--    <button class="btn btn-gradient" onclick="allDownload('{{ .OutURLs }}')">-->
+<!--      一括ダウンロード(ブラウザの一括ダウンロードを許可する必要があります。)-->
+<!--    </button>-->
     <br /><br />
     <table border="1">
         <tr>
@@ -70,6 +77,30 @@
             for (let i = 0; i < urls.length; i++) {
                 url = urls[i].replace("[", "").replace("]", "");
                 doDownload(url);
+            }
+        }
+
+        // 標準出力のテキストエリアを出したりする箇所
+        // ページロードした時は非表示
+        const stdout_textarea = document.getElementById('stdout-textarea');
+        stdout_textarea.style.display = "none";
+        function clickStdoutDisplay() {
+            if (stdout_textarea.style.display=="block") {
+                stdout_textarea.style.display = "none";
+            } else {
+                stdout_textarea.style.display = "block";
+            }
+        }
+
+        // 標準エラー出力のテキストエリアを出したりする箇所
+        // ページロードした時は非表示
+        const stderr_textarea = document.getElementById('stderr-textarea');
+        stderr_textarea.style.display = "none";
+        function clickStderrDisplay() {
+            if (stderr_textarea.style.display=="block") {
+                stderr_textarea.style.display = "none";
+            } else {
+                stderr_textarea.style.display = "block";
             }
         }
     </script>

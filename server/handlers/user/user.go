@@ -163,6 +163,7 @@ func ExecHandler(w http.ResponseWriter, r *http.Request) {
 		Result                  string
 		Errmsg                  string
 		Stdout                  string
+		Stderr                  string
 	}
 	d := data{
 		Name:                    proConf.Name(),
@@ -171,6 +172,7 @@ func ExecHandler(w http.ResponseWriter, r *http.Request) {
 		Result:                  outputInfo.Status(),
 		Errmsg:                  outputInfo.ErrorMsg(),
 		Stdout:                  outputInfo.StdOut(),
+		Stderr:                  outputInfo.StdErr(),
 	}
 
 	t, err := template.ParseFiles(serveHtml)

@@ -26,7 +26,7 @@
 
 
 
-    <p>Program Name {{ .Name }}</p>
+    <p>プログラム名: {{ .Name }}</p>
     <form id="form" enctype="multipart/form-data" action="/user/exec" method="POST">
         <input type="hidden" name="proName" value="{{ .Name }}" />
         <div class="cp_iptxt">
