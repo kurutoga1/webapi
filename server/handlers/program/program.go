@@ -51,7 +51,7 @@ func ProgramHandler(w http.ResponseWriter, r *http.Request) {
 		logf(msg)
 
 		// jsonに変換
-		b, err := json.Marshal(out)
+		b, err := json.MarshalIndent(out, "", "    ")
 		if err != nil {
 			logf(err.Error())
 			http.Error(w, err.Error(), 500)

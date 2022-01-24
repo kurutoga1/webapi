@@ -5,6 +5,7 @@
 package user
 
 import (
+	"fmt"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -120,12 +121,13 @@ func PrepareExecHandler(w http.ResponseWriter, r *http.Request) {
 // 上記の情報を使用し、コマンドを実行。
 // 実行結果をwebページに挿入し、webページを返す。
 func ExecHandler(w http.ResponseWriter, r *http.Request) {
+	fName := "ExecHandler"
 	serveHtml := filepath.Join(cfg.TemplatesDir, "execResult.html")
 
 	// file(multi-data)をこのサーバのfileserver/uploadにアップロードする。
 	uploadedFilePath, err := upload.Upload(w, r)
 	if err != nil {
-		logf("err: %v", err.Error())
+		logf("ExecHandler: %v", err.Error())
 		http.Error(w, err.Error(), 500)
 		return
 	}
@@ -136,14 +138,14 @@ func ExecHandler(w http.ResponseWriter, r *http.Request) {
 
 	proConf, err := config.GetProConfByName(proName)
 	if err != nil {
-		logf(err.Error())
-		http.Error(w, err.Error(), 500)
+		logf("%v: %v", fName, err.Error())
+		http.Error(w, fmt.Sprintf("ExecHandler: %v", err.Error()), 500)
 		return
 	}
 
 	ctx, err := contextManager.NewContextManager(proName, uploadedFilePath, parameta, cfg)
 	if err != nil {
-		logf(err.Error())
+		logf("%v: %v", fName, err.Error())
 		http.Error(w, err.Error(), 500)
 		return
 	}
