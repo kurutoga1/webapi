@@ -114,7 +114,7 @@ func TestExecHandler(t *testing.T) {
 		t.Errorf("got %v, want %v", response.Code, http.StatusOK)
 	}
 
-	expected := "<p>Result: ok</p>"
+	expected := "<p>結果: ok</p>"
 	if !strings.Contains(response.Body.String(), expected) {
 		t.Errorf("response.Body doesn't contain %v", expected)
 	}
