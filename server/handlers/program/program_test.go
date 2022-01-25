@@ -9,13 +9,13 @@ import (
 	"os"
 	"testing"
 	cp "webapi/cli/processFileOnServer"
-	u "webapi/cli/upload"
 	"webapi/server/execution/msgs"
 	sh "webapi/server/handlers"
 	"webapi/server/handlers/program"
 	"webapi/server/outputManager"
 	"webapi/utils/file"
 	http2 "webapi/utils/http"
+	u "webapi/utils/upload"
 )
 
 var (

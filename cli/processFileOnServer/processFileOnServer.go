@@ -5,11 +5,15 @@
 package processFileOnServer
 
 import (
-	"bytes"
 	"encoding/json"
+	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
+	"mime/multipart"
 	"net/http"
+	"os"
+	"path/filepath"
 	outLib "webapi/server/outputManager"
 	log2 "webapi/utils/log"
 )
@@ -27,7 +31,7 @@ type UploadedInfo struct {
 }
 
 type FileProcessor interface {
-	Process(url, uploadedBaseName, parameta string) (outLib.OutputManager, error)
+	Process(url, uploadFilePath, parameta string) (outLib.OutputManager, error)
 }
 
 func NewFileProcessor() FileProcessor {
@@ -36,37 +40,49 @@ func NewFileProcessor() FileProcessor {
 
 type fileProcessor struct{}
 
-// Process はサーバにアップロードしたファイルを処理させる。
+// Process はリクエストの中にfile(multi-part)とパラメータを付与し、サーバへ送信する。
 // サーバのurl, アップロードしたuploadedFile、サーバ上でコマンドを実行するためのparametaを受け取る
-// 返り値はサーバー内で出力したファイルを取得するためのURLパスのリストを返す。
-func (f *fileProcessor) Process(url string, uploadedBasename string, parameta string) (outLib.OutputManager, error) {
+// 返り値はoutLib.OutputManagerインタフェースを返す。
+func (f *fileProcessor) Process(url, uploadFilePath, parameta string) (outLib.OutputManager, error) {
+	pr, pw := io.Pipe()
+	form := multipart.NewWriter(pw)
 
-	Logger.Printf("url: %v\n", url)
-	Logger.Printf("uploadFile: %v\n", uploadedBasename)
+	go func() {
+		defer pw.Close()
 
-	// 値をリクエストボディにセットする
-	reqBody := UploadedInfo{Filename: uploadedBasename, Parameta: parameta}
+		err := form.WriteField("parameta", parameta)
+		if err != nil {
+			panic(err.Error())
+		}
 
-	// リクエストボディをjsonに変換
-	requestBody, err := json.Marshal(reqBody)
-	Logger.Printf("requestBody: %v\n", string(requestBody))
+		file, err := os.Open(uploadFilePath)
+		if err != nil {
+			panic(err.Error())
+		}
+		w, err := form.CreateFormFile("file", filepath.Base(uploadFilePath))
+		if err != nil {
+			panic(err.Error())
+		}
+		_, err = io.Copy(w, file)
+		if err != nil {
+			panic(err.Error())
+		}
+		err = form.Close()
+		if err != nil {
+			panic(err.Error())
+		}
+	}()
+
+	req, err := http.NewRequest(http.MethodPost, url, pr)
 	if err != nil {
-		return &outLib.OutputInfo{}, err
+		return &outLib.OutputInfo{}, fmt.Errorf("Process: %v", err)
 	}
-	body := bytes.NewReader(requestBody)
-
-	// POSTリクエストを作成
-	req, err := http.NewRequest("POST", url, body)
-	if err != nil {
-		return &outLib.OutputInfo{}, err
-	}
-
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", form.FormDataContentType())
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return &outLib.OutputInfo{}, err
+		return &outLib.OutputInfo{}, fmt.Errorf("Process: %v", err)
 	}
 
 	defer resp.Body.Close()
@@ -76,7 +92,7 @@ func (f *fileProcessor) Process(url string, uploadedBasename string, parameta st
 	b, err := ioutil.ReadAll(resp.Body)
 	Logger.Printf("Response body: %v\r", string(b))
 	if err := json.Unmarshal(b, &res); err != nil {
-		log.Fatal(err)
+		return &outLib.OutputInfo{}, fmt.Errorf("Process: %v", err)
 	}
 	Logger.Printf("res: %v\n", res)
 

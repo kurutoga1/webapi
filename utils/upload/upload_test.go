@@ -5,9 +5,9 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	u "webapi/cli/upload"
 	"webapi/tests"
 	"webapi/utils/file"
+	u "webapi/utils/upload"
 )
 
 var (

@@ -7,9 +7,9 @@ import (
 	"sync"
 	"testing"
 	"webapi/cli/download"
-	u "webapi/cli/upload"
 	"webapi/tests"
 	"webapi/utils/file"
+	u "webapi/utils/upload"
 )
 
 var (

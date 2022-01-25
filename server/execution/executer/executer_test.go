@@ -10,13 +10,13 @@ import (
 	"path/filepath"
 	"testing"
 	cp "webapi/cli/processFileOnServer"
-	u "webapi/cli/upload"
 	"webapi/server/config"
 	"webapi/server/execution/contextManager"
 	executer2 "webapi/server/execution/executer"
 	"webapi/server/execution/msgs"
 	sh "webapi/server/handlers"
 	"webapi/utils/file"
+	u "webapi/utils/upload"
 )
 
 var (

@@ -5,7 +5,6 @@
 package user
 
 import (
-	"fmt"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -13,7 +12,6 @@ import (
 	"webapi/server/config"
 	"webapi/server/execution/contextManager"
 	"webapi/server/execution/executer"
-	"webapi/server/handlers/upload"
 	"webapi/server/outputManager"
 )
 
@@ -124,26 +122,7 @@ func ExecHandler(w http.ResponseWriter, r *http.Request) {
 	fName := "ExecHandler"
 	serveHtml := filepath.Join(cfg.TemplatesDir, "execResult.html")
 
-	// file(multi-data)をこのサーバのfileserver/uploadにアップロードする。
-	uploadedFilePath, err := upload.Upload(w, r)
-	if err != nil {
-		logf("ExecHandler: %v", err.Error())
-		http.Error(w, err.Error(), 500)
-		return
-	}
-
-	proName := r.FormValue("proName")
-	parameta := r.FormValue("parameta")
-	logf("programName: %v, parameta: %v", proName, parameta)
-
-	proConf, err := config.GetProConfByName(proName)
-	if err != nil {
-		logf("%v: %v", fName, err.Error())
-		http.Error(w, fmt.Sprintf("ExecHandler: %v", err.Error()), 500)
-		return
-	}
-
-	ctx, err := contextManager.NewContextManager(proName, uploadedFilePath, parameta, cfg)
+	ctx, err := contextManager.NewContextManager(w, r, cfg)
 	if err != nil {
 		logf("%v: %v", fName, err.Error())
 		http.Error(w, err.Error(), 500)
@@ -153,6 +132,9 @@ func ExecHandler(w http.ResponseWriter, r *http.Request) {
 	var outputInfo outputManager.OutputManager
 	var executer executer.Executer = executer.NewExecuter()
 
+	logf("programName: %v", ctx.ProgramName())
+	logf("uploadFilePath: %v", ctx.UploadedFilePath())
+	logf("parameta: %v", ctx.Parameta())
 	logf("command: %v", ctx.Command())
 	outputInfo = executer.Execute(ctx)
 	logf("Status: %v", outputInfo.Status())
@@ -168,7 +150,7 @@ func ExecHandler(w http.ResponseWriter, r *http.Request) {
 		Stderr                  string
 	}
 	d := data{
-		Name:                    proConf.Name(),
+		Name:                    ctx.ProgramConfig().Name(),
 		OutURLs:                 outputInfo.OutURLs(),
 		DownloadLimitSecondTime: cfg.DeleteProcessedFileLimitSecondTime,
 		Result:                  outputInfo.Status(),

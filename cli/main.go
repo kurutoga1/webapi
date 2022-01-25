@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"strconv"
 	"sync"
 	"webapi/cli/selectServer"
@@ -34,7 +33,6 @@ import (
 	"webapi/cli/config"
 	"webapi/cli/download"
 	p "webapi/cli/processFileOnServer"
-	u "webapi/cli/upload"
 )
 
 func main() {
@@ -183,22 +181,13 @@ func main() {
 
 	logger.Printf("selected program server address: %v \n", programServerAddr)
 
-	// ローカルファイルをサーバーにアップロードする
-	uploader := u.NewUploader()
-	err = uploader.Upload(programServerAddr+"/upload", inputFile)
-	if err != nil {
-		fmt.Printf("%vへのファイルのアップロードが失敗しました。err msg: %v \n", programServerAddr, err.Error())
-		os.Exit(1)
-	}
-
-	// アップロードしたファイル情報を送信しサーバー上で処理する。
+	// inputfile,parametaをサーバへ送信しサーバー上で処理する。
 	// サーバでの実行結果を表示する。
-	basename := filepath.Base(inputFile)
 	proURL := fmt.Sprintf("%v/pro/%v", programServerAddr, proName)
 	processor := p.NewFileProcessor()
-	res, err := processor.Process(proURL, basename, parameta)
+	res, err := processor.Process(proURL, inputFile, parameta)
 	if err != nil {
-		fmt.Printf("アップロードしたファイルをプログラムサーバ上で処理させているときにエラーが発生しました。 err msg: %v \n", err.Error())
+		fmt.Printf("サーバ上でエラーが発生しました。 err msg: %v \n", err.Error())
 		os.Exit(1)
 	}
 

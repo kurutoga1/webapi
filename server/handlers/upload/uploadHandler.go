@@ -77,7 +77,6 @@ func Upload(w http.ResponseWriter, r *http.Request) (string, error) {
 
 	// 保存用ディレクトリ内に新しいファイルを作成します。
 	uploadFilePath := filepath.Join(uploadDir, fileHeader.Filename)
-	logf("uploadFilePath: %v", uploadFilePath)
 	dst, err := os.Create(uploadFilePath)
 	if err != nil {
 		return "", fmt.Errorf("Upload: %v", err)
@@ -97,7 +96,6 @@ func Upload(w http.ResponseWriter, r *http.Request) (string, error) {
 		return "", fmt.Errorf("Upload: %v", err)
 	}
 
-	logf(msg.UploadSuccess)
 	return uploadFilePath, nil
 
 }

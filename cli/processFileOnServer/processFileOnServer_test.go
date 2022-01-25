@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"testing"
 	p "webapi/cli/processFileOnServer"
-	u "webapi/cli/upload"
 	sh "webapi/server/handlers"
 	"webapi/utils/file"
+	u "webapi/utils/upload"
 )
 
 var (

@@ -12,9 +12,11 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"webapi/server/config"
+	"webapi/server/handlers/upload"
 	"webapi/utils/file"
 	log2 "webapi/utils/log"
 	utils2 "webapi/utils/string"
@@ -78,13 +80,33 @@ type ContextManager interface {
 // NewContextManager はcontextManagerを返す。
 // プログラム名とプログラム出力ディレクトリはセットする。
 // それ以外に必要な要素は定義した後で設定し、executerに渡す感じ
-func NewContextManager(proName, uploadedFilePath, parameta string, cfg *config.Config) (ContextManager, error) {
+func NewContextManager(w http.ResponseWriter, r *http.Request, cfg *config.Config) (ContextManager, error) {
 	fName := "NewContextManager"
-	Logger.Println("create context manager")
 	ctx := &contextManager{}
-	ctx.SetProgramName(proName)
 
-	proConf, err := config.GetProConfByName(proName)
+	// file(multi-data)をこのサーバのfileserver/uploadにアップロードする。
+	uploadFilePath, err := upload.Upload(w, r)
+	if err != nil {
+		return nil, fmt.Errorf("%v: %v", fName, err)
+	}
+
+	if !file.FileExists(uploadFilePath) {
+		return nil, fmt.Errorf("%v: %v", fName, errors.New(uploadFilePath+" is not found."))
+	}
+	ctx.SetUploadedFilePath(uploadFilePath)
+
+	ctx.SetParameta(r.FormValue("parameta"))
+	programName := r.FormValue("proName")
+
+	// プログラム名を取得する処理
+	// webからの場合はFormValueにプログラム名が乗ってくるが
+	// cliからの場合はURLのエンドポイントに乗ってくるため処理を分ける必要がある。
+	if programName == "" {
+		programName = r.URL.Path[len("/pro/"):]
+	}
+	ctx.SetProgramName(programName)
+
+	proConf, err := config.GetProConfByName(programName)
 	if err != nil {
 		return nil, fmt.Errorf("%v: %v", fName, err)
 	}
@@ -99,12 +121,6 @@ func NewContextManager(proName, uploadedFilePath, parameta string, cfg *config.C
 	if err != nil {
 		return nil, fmt.Errorf("%v: %v", fName, err)
 	}
-
-	if !file.FileExists(uploadedFilePath) {
-		return nil, fmt.Errorf("%v: %v", fName, errors.New(uploadedFilePath+" is not found."))
-	}
-	ctx.SetUploadedFilePath(uploadedFilePath)
-	ctx.SetParameta(parameta)
 
 	if err = ctx.SetInputFilePath(); err != nil {
 		return nil, fmt.Errorf("%v: %v", fName, err)

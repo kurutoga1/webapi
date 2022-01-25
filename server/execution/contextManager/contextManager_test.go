@@ -11,11 +11,11 @@ import (
 	"reflect"
 	"testing"
 	cp "webapi/cli/processFileOnServer"
-	u "webapi/cli/upload"
 	"webapi/server/config"
 	ec "webapi/server/execution/contextManager"
 	"webapi/tests"
 	"webapi/utils/file"
+	u "webapi/utils/upload"
 )
 
 var (

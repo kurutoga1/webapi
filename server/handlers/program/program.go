@@ -6,18 +6,13 @@ package program
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"io"
 	"net/http"
-	"path/filepath"
-	cp "webapi/cli/processFileOnServer"
 	"webapi/server/config"
 	"webapi/server/execution/contextManager"
 	"webapi/server/execution/executer"
 	"webapi/server/execution/msgs"
 	"webapi/server/outputManager"
-	"webapi/utils/file"
 )
 
 var cfg = config.Load()
@@ -28,18 +23,14 @@ var cfg = config.Load()
 // に送られる。
 // アップロードファイルやパラメータ等を使用し、コマンド実行する。
 func ProgramHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Body == nil {
-		err := errors.New("Body of request is nil. should set body that are Filename,parameta.")
-		logf(err.Error())
-		http.Error(w, err.Error(), 500)
-		return
-	}
-
 	programName := r.URL.Path[len("/pro/"):]
 
 	var out outputManager.OutputManager = outputManager.NewOutputManager()
 	var newExecuter executer.Executer = executer.NewExecuter()
 
+	// TODO:
+	// ctx, err := contextManager.NewContextManager(w, r, cfg)
+	// errors.Is(err, config.ProgramNotFoundError)みたいなので判定した方がいいかも
 	_, err := config.GetProConfByName(programName)
 
 	// プログラムがこのサーバになかった場合
@@ -68,28 +59,7 @@ func ProgramHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// bodyを構造体に代入
-	var u cp.UploadedInfo
-	err = json.NewDecoder(r.Body).Decode(&u)
-	if err != nil && err != io.EOF {
-		logf(err.Error())
-		http.Error(w, err.Error(), 500)
-		return
-	}
-
-	logf("programName: %v, parameta: %v", programName, u.Parameta)
-
-	// このリクエストがくる前にuploadディレクトリにアップロードは完了しているのでbasenameを使用しパスをつなげる。
-	uploadedDir := filepath.Join(cfg.FileServer.Dir, cfg.FileServer.UploadDir)
-	uploadedFilePath := filepath.Join(uploadedDir, u.Filename)
-	if !file.FileExists(uploadedFilePath) {
-		err := errors.New("アップロードファイルが見つかりません。path: " + uploadedFilePath)
-		logf(err.Error())
-		http.Error(w, err.Error(), 500)
-		return
-	}
-
-	ctx, err := contextManager.NewContextManager(programName, uploadedFilePath, u.Parameta, cfg)
+	ctx, err := contextManager.NewContextManager(w, r, cfg)
 	if err != nil {
 		logf(err.Error())
 		http.Error(w, err.Error(), 500)
