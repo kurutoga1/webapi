@@ -1,17 +1,15 @@
 package user_test
 
 import (
-	"io"
-	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 	"webapi/server/handlers/user"
 	"webapi/utils/file"
+	http2 "webapi/utils/http"
 )
 
 var (
@@ -66,56 +64,19 @@ func TestExecHandler(t *testing.T) {
 		panic(err.Error())
 	}
 
-	pr, pw := io.Pipe()
-	form := multipart.NewWriter(pw)
-
-	go func() {
-		defer pw.Close()
-
-		err = form.WriteField("proName", "convertToJson")
-		if err != nil {
-			panic(err.Error())
-		}
-
-		err = form.WriteField("parameta", "dummyParameta")
-		if err != nil {
-			panic(err.Error())
-		}
-
-		file, err := os.Open(uploadFile)
-		if err != nil {
-			panic(err.Error())
-		}
-		w, err := form.CreateFormFile("file", filepath.Base(uploadFile))
-		if err != nil {
-			panic(err.Error())
-		}
-		_, err = io.Copy(w, file)
-		if err != nil {
-			panic(err.Error())
-		}
-		err = form.Close()
-		if err != nil {
-			panic(err.Error())
-		}
-	}()
-
-	req, err := http.NewRequest(http.MethodPost, "/user/exec", pr)
+	w, r, err := http2.MainRequest(uploadFile, "convertToJson", "dummyParameta", "web")
 	if err != nil {
 		panic(err.Error())
 	}
-	req.Header.Set("Content-Type", form.FormDataContentType())
 
-	response := httptest.NewRecorder()
+	user.ExecHandler(w, r)
 
-	user.ExecHandler(response, req)
-
-	if response.Code != http.StatusOK {
-		t.Errorf("got %v, want %v", response.Code, http.StatusOK)
+	if w.Code != http.StatusOK {
+		t.Errorf("got %v, want %v", w.Code, http.StatusOK)
 	}
 
 	expected := "<p>結果: ok</p>"
-	if !strings.Contains(response.Body.String(), expected) {
+	if !strings.Contains(w.Body.String(), expected) {
 		t.Errorf("response.Body doesn't contain %v", expected)
 	}
 
