@@ -7,14 +7,11 @@ package processFileOnServer
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
-	"mime/multipart"
 	"net/http"
-	"os"
-	"path/filepath"
 	outLib "webapi/server/outputManager"
+	http2 "webapi/utils/http"
 	log2 "webapi/utils/log"
 )
 
@@ -24,14 +21,8 @@ func init() {
 	Logger = log.New(new(log2.NullWriter), "", log.Ldate|log.Ltime)
 }
 
-// UploadedInfo はアップロードされた情報をサーバーに送る際の構造体
-type UploadedInfo struct {
-	Filename string `json:"filename"`
-	Parameta string `json:"parameta"`
-}
-
 type FileProcessor interface {
-	Process(url, uploadFilePath, parameta string) (outLib.OutputManager, error)
+	Process(proName, url, uploadFilePath, parameta string) (outLib.OutputManager, error)
 }
 
 func NewFileProcessor() FileProcessor {
@@ -43,41 +34,16 @@ type fileProcessor struct{}
 // Process はリクエストの中にfile(multi-part)とパラメータを付与し、サーバへ送信する。
 // サーバのurl, アップロードしたuploadedFile、サーバ上でコマンドを実行するためのparametaを受け取る
 // 返り値はoutLib.OutputManagerインタフェースを返す。
-func (f *fileProcessor) Process(url, uploadFilePath, parameta string) (outLib.OutputManager, error) {
-	pr, pw := io.Pipe()
-	form := multipart.NewWriter(pw)
+func (f *fileProcessor) Process(proName, url, uploadFilePath, parameta string) (outLib.OutputManager, error) {
 
-	go func() {
-		defer pw.Close()
-
-		err := form.WriteField("parameta", parameta)
-		if err != nil {
-			panic(err.Error())
-		}
-
-		file, err := os.Open(uploadFilePath)
-		if err != nil {
-			panic(err.Error())
-		}
-		w, err := form.CreateFormFile("file", filepath.Base(uploadFilePath))
-		if err != nil {
-			panic(err.Error())
-		}
-		_, err = io.Copy(w, file)
-		if err != nil {
-			panic(err.Error())
-		}
-		err = form.Close()
-		if err != nil {
-			panic(err.Error())
-		}
-	}()
-
-	req, err := http.NewRequest(http.MethodPost, url, pr)
+	fields := map[string]string{
+		"proName":  proName,
+		"parameta": parameta,
+	}
+	req, err := http2.GetPostRequestWithFileAndFields(uploadFilePath, url, fields)
 	if err != nil {
 		return &outLib.OutputInfo{}, fmt.Errorf("Process: %v", err)
 	}
-	req.Header.Set("Content-Type", form.FormDataContentType())
 
 	client := &http.Client{}
 	resp, err := client.Do(req)

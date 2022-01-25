@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 	"webapi/server/handlers/user"
-	http2 "webapi/tests"
 	"webapi/utils/file"
+	http2 "webapi/utils/http"
 )
 
 var (
@@ -64,10 +64,15 @@ func TestExecHandler(t *testing.T) {
 		panic(err.Error())
 	}
 
-	w, r, err := http2.MainRequest(uploadFile, "convertToJson", "dummyParameta", "web")
+	fields := map[string]string{
+		"proName":  "convertToJson",
+		"parameta": "dummyParameta",
+	}
+	r, err := http2.GetPostRequestWithFileAndFields(uploadFile, "/pro/convertToJson", fields)
 	if err != nil {
 		panic(err.Error())
 	}
+	w := httptest.NewRecorder()
 
 	user.ExecHandler(w, r)
 

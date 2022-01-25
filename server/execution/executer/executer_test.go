@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"testing"
@@ -12,8 +13,8 @@ import (
 	executer2 "webapi/server/execution/executer"
 	"webapi/server/execution/msgs"
 	sh "webapi/server/handlers"
-	http2 "webapi/tests"
 	"webapi/utils/file"
+	http2 "webapi/utils/http"
 	u "webapi/utils/upload"
 )
 
@@ -70,7 +71,16 @@ func GetDummyContextManager(cfg *config.Config) (contextManager.ContextManager, 
 	if err != nil {
 		panic(err.Error())
 	}
-	w, r, err := http2.MainRequest(uploadFile, "convertToJson", "dummyParameta", "cli")
+
+	fields := map[string]string{
+		"proName":  "convertToJson",
+		"parameta": "dummyParameta",
+	}
+	r, err := http2.GetPostRequestWithFileAndFields(uploadFile, "/pro/convertToJson", fields)
+	if err != nil {
+		panic(err.Error())
+	}
+	w := httptest.NewRecorder()
 
 	var ctx contextManager.ContextManager
 	ctx, err = contextManager.NewContextManager(w, r, cfg)

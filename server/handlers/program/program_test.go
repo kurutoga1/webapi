@@ -11,7 +11,6 @@ import (
 	sh "webapi/server/handlers"
 	"webapi/server/handlers/program"
 	"webapi/server/outputManager"
-	"webapi/tests"
 	"webapi/utils/file"
 	http2 "webapi/utils/http"
 	u "webapi/utils/upload"
@@ -134,10 +133,15 @@ func testProgramHandler(t *testing.T, proName string) (*httptest.ResponseRecorde
 		panic(err.Error())
 	}
 
-	w, r, err := tests.MainRequest(uploadFile, proName, "dummyParameta", "cli")
+	fields := map[string]string{
+		"proName":  "convertToJson",
+		"parameta": "dummyParameta",
+	}
+	r, err := http2.GetPostRequestWithFileAndFields(uploadFile, "/pro/"+proName, fields)
 	if err != nil {
 		panic(err.Error())
 	}
+	w := httptest.NewRecorder()
 
 	handler := http.HandlerFunc(program.ProgramHandler)
 

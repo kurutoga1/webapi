@@ -182,15 +182,15 @@ func main() {
 	logger.Printf("selected program server address: %v \n", programServerAddr)
 
 	// inputfile,parametaをサーバへ送信しサーバー上で処理する。
-	// サーバでの実行結果を表示する。
 	proURL := fmt.Sprintf("%v/pro/%v", programServerAddr, proName)
 	processor := p.NewFileProcessor()
-	res, err := processor.Process(proURL, inputFile, parameta)
+	res, err := processor.Process(proName, proURL, inputFile, parameta)
 	if err != nil {
 		fmt.Printf("サーバ上でエラーが発生しました。 err msg: %v \n", err.Error())
 		os.Exit(1)
 	}
 
+	// サーバでの実行結果を表示する。
 	if outJSONFLAG {
 		b, err := json.MarshalIndent(res, "", "  ")
 		if err != nil {

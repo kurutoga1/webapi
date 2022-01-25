@@ -3,6 +3,7 @@ package contextManager_test
 import (
 	"fmt"
 	"log"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -11,6 +12,7 @@ import (
 	ec "webapi/server/execution/contextManager"
 	"webapi/tests"
 	"webapi/utils/file"
+	"webapi/utils/http"
 	u "webapi/utils/upload"
 )
 
@@ -71,10 +73,16 @@ func GetDummyContextManager(cfg *config.Config) (ec.ContextManager, error) {
 	if err != nil {
 		panic(err.Error())
 	}
-	w, r, err := tests.MainRequest(uploadFile, "convertToJson", "dummyParameta", "cli")
+
+	fields := map[string]string{
+		"proName":  "convertToJson",
+		"parameta": "dummyParameta",
+	}
+	r, err := http.GetPostRequestWithFileAndFields(uploadFile, "/pro/convertToJson", fields)
 	if err != nil {
 		panic(err.Error())
 	}
+	w := httptest.NewRecorder()
 
 	var ctx ec.ContextManager
 	ctx, err = ec.NewContextManager(w, r, cfg)

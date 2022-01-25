@@ -63,7 +63,7 @@ func TestProcessFileOnServer(t *testing.T) {
 
 	processor := p.NewFileProcessor()
 
-	res, err := processor.Process(url, basename, parameta)
+	res, err := processor.Process(programName, url, basename, parameta)
 	if err != nil {
 		t.Errorf("err from Process: %v \n", err.Error())
 	}
