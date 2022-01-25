@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 	"webapi/server/handlers/user"
+	http2 "webapi/tests"
 	"webapi/utils/file"
-	http2 "webapi/utils/http"
 )
 
 var (

@@ -11,6 +11,7 @@ import (
 	sh "webapi/server/handlers"
 	"webapi/server/handlers/program"
 	"webapi/server/outputManager"
+	"webapi/tests"
 	"webapi/utils/file"
 	http2 "webapi/utils/http"
 	u "webapi/utils/upload"
@@ -133,7 +134,7 @@ func testProgramHandler(t *testing.T, proName string) (*httptest.ResponseRecorde
 		panic(err.Error())
 	}
 
-	w, r, err := http2.MainRequest(uploadFile, proName, "dummyParameta", "cli")
+	w, r, err := tests.MainRequest(uploadFile, proName, "dummyParameta", "cli")
 	if err != nil {
 		panic(err.Error())
 	}

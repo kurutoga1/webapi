@@ -11,7 +11,6 @@ import (
 	ec "webapi/server/execution/contextManager"
 	"webapi/tests"
 	"webapi/utils/file"
-	"webapi/utils/http"
 	u "webapi/utils/upload"
 )
 
@@ -72,7 +71,7 @@ func GetDummyContextManager(cfg *config.Config) (ec.ContextManager, error) {
 	if err != nil {
 		panic(err.Error())
 	}
-	w, r, err := http.MainRequest(uploadFile, "convertToJson", "dummyParameta", "cli")
+	w, r, err := tests.MainRequest(uploadFile, "convertToJson", "dummyParameta", "cli")
 	if err != nil {
 		panic(err.Error())
 	}

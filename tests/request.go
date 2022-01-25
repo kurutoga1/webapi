@@ -1,4 +1,4 @@
-package http
+package tests
 
 import (
 	"fmt"
@@ -12,9 +12,10 @@ import (
 
 // MainRequest web,cliのどちらともからこのリクエストをプログラムサーバへ送信する。
 // toパラメータは"web"か"cli"のどちらかを指定する。
-func MainRequest(uploadFile, proName, parameta, to string) (*httptest.ResponseRecorder, *http.Request, error) {
-	if to != "web" && to != "cli" {
-		return nil, nil, fmt.Errorf("MainRequest: to(%v) is not valid. only web or cli.", to)
+// 主にtestで使用する。
+func MainRequest(uploadFile, proName, parameta, from string) (*httptest.ResponseRecorder, *http.Request, error) {
+	if from != "web" && from != "cli" {
+		return nil, nil, fmt.Errorf("MainRequest: from(%v) is not valid. only web or cli.", from)
 	}
 
 	pr, pw := io.Pipe()
@@ -23,7 +24,7 @@ func MainRequest(uploadFile, proName, parameta, to string) (*httptest.ResponseRe
 	go func() {
 		defer pw.Close()
 
-		if to == "web" {
+		if from == "web" {
 			err := form.WriteField("proName", proName)
 			if err != nil {
 				panic(err.Error())
@@ -54,9 +55,9 @@ func MainRequest(uploadFile, proName, parameta, to string) (*httptest.ResponseRe
 	var r *http.Request
 	var err error
 
-	if to == "cli" {
+	if from == "cli" {
 		r, err = http.NewRequest(http.MethodPost, "/pro/"+proName, pr)
-	} else if to == "web" {
+	} else if from == "web" {
 		r, err = http.NewRequest(http.MethodPost, "/user/exec", pr)
 	}
 
