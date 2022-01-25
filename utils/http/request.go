@@ -11,41 +11,33 @@ import (
 
 // GetPostRequestWithFileAndFields
 // プログラムサーバで実行するために必要なのはfile(multi-part)といくつかのパラメータ
+// いくつかのパラメータはfieldsパラメータにmapで渡す。
 // それらを一気にPOSTで送るリクエストを返す。
-func GetPostRequestWithFileAndFields(uploadFile, url string, fields map[string]string) (*http.Request, error) {
+func GetPostRequestWithFileAndFields(uploadFile, url string, fields map[string]string) (r *http.Request, err error) {
 
 	pr, pw := io.Pipe()
 	form := multipart.NewWriter(pw)
 
 	go func() {
-		defer pw.Close()
+		defer func(pw *io.PipeWriter) {
+			err = pw.Close()
+		}(pw)
 
+		// フォームにフィールドを追加
 		for field, value := range fields {
-			err := form.WriteField(field, value)
-			if err != nil {
-				panic(err.Error())
-			}
+			err = form.WriteField(field, value)
 		}
 
-		file, err := os.Open(uploadFile)
-		if err != nil {
-			panic(err.Error())
-		}
-		w, err := form.CreateFormFile("file", filepath.Base(uploadFile))
-		if err != nil {
-			panic(err.Error())
-		}
+		var file *os.File
+		file, err = os.Open(uploadFile)
+
+		var w io.Writer
+		w, err = form.CreateFormFile("file", filepath.Base(uploadFile))
 		_, err = io.Copy(w, file)
-		if err != nil {
-			panic(err.Error())
-		}
 		err = form.Close()
-		if err != nil {
-			panic(err.Error())
-		}
 	}()
 
-	r, err := http.NewRequest(http.MethodPost, url, pr)
+	r, err = http.NewRequest(http.MethodPost, url, pr)
 
 	if err != nil {
 		return nil, fmt.Errorf("GetPostRequestWithFileAndFields: %v", err)
