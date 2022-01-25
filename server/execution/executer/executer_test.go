@@ -2,11 +2,8 @@ package executer_test
 
 import (
 	"fmt"
-	"io"
 	"log"
-	"mime/multipart"
 	"net/http"
-	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"testing"
@@ -16,6 +13,7 @@ import (
 	"webapi/server/execution/msgs"
 	sh "webapi/server/handlers"
 	"webapi/utils/file"
+	http2 "webapi/utils/http"
 	u "webapi/utils/upload"
 )
 
@@ -72,48 +70,7 @@ func GetDummyContextManager(cfg *config.Config) (contextManager.ContextManager, 
 	if err != nil {
 		panic(err.Error())
 	}
-
-	pr, pw := io.Pipe()
-	form := multipart.NewWriter(pw)
-
-	go func() {
-		defer pw.Close()
-
-		err = form.WriteField("proName", "convertToJson")
-		if err != nil {
-			panic(err.Error())
-		}
-
-		err = form.WriteField("parameta", "dummyParameta")
-		if err != nil {
-			panic(err.Error())
-		}
-
-		file, err := os.Open(uploadFile)
-		if err != nil {
-			panic(err.Error())
-		}
-		w, err := form.CreateFormFile("file", filepath.Base(uploadFile))
-		if err != nil {
-			panic(err.Error())
-		}
-		_, err = io.Copy(w, file)
-		if err != nil {
-			panic(err.Error())
-		}
-		err = form.Close()
-		if err != nil {
-			panic(err.Error())
-		}
-	}()
-
-	r, err := http.NewRequest(http.MethodPost, "/pro/"+programName, pr)
-	if err != nil {
-		panic(err.Error())
-	}
-	r.Header.Set("Content-Type", form.FormDataContentType())
-
-	w := httptest.NewRecorder()
+	w, r, err := http2.MainRequest(uploadFile, "convertToJson", "dummyParameta", "cli")
 
 	var ctx contextManager.ContextManager
 	ctx, err = contextManager.NewContextManager(w, r, cfg)

@@ -2,13 +2,10 @@ package program_test
 
 import (
 	"encoding/json"
-	"io"
 	"log"
-	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"path/filepath"
 	"testing"
 	"webapi/server/execution/msgs"
 	sh "webapi/server/handlers"
@@ -136,57 +133,21 @@ func testProgramHandler(t *testing.T, proName string) (*httptest.ResponseRecorde
 		panic(err.Error())
 	}
 
-	pr, pw := io.Pipe()
-	form := multipart.NewWriter(pw)
-
-	go func() {
-		defer pw.Close()
-
-		err = form.WriteField("proName", "convertToJson")
-		if err != nil {
-			panic(err.Error())
-		}
-
-		err = form.WriteField("parameta", "dummyParameta")
-		if err != nil {
-			panic(err.Error())
-		}
-
-		file, err := os.Open(uploadFile)
-		if err != nil {
-			panic(err.Error())
-		}
-		w, err := form.CreateFormFile("file", filepath.Base(uploadFile))
-		if err != nil {
-			panic(err.Error())
-		}
-		_, err = io.Copy(w, file)
-		if err != nil {
-			panic(err.Error())
-		}
-		err = form.Close()
-		if err != nil {
-			panic(err.Error())
-		}
-	}()
-
-	r, err := http.NewRequest(http.MethodPost, "/pro/"+proName, pr)
+	w, r, err := http2.MainRequest(uploadFile, proName, "dummyParameta", "cli")
 	if err != nil {
 		panic(err.Error())
 	}
-	r.Header.Set("Content-Type", form.FormDataContentType())
 
-	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(program.ProgramHandler)
 
-	handler.ServeHTTP(rr, r)
+	handler.ServeHTTP(w, r)
 	var out *outputManager.OutputInfo
 
-	if err := json.Unmarshal(rr.Body.Bytes(), &out); err != nil {
-		t.Errorf("jsonUnmarshal fail(msg: %v). body is %v", err.Error(), rr.Body.String())
+	if err := json.Unmarshal(w.Body.Bytes(), &out); err != nil {
+		t.Errorf("jsonUnmarshal fail(msg: %v). body is %v", err.Error(), w.Body.String())
 	}
 
-	return rr, out
+	return w, out
 }
 
 func TestProgramAllHandler(t *testing.T) {
