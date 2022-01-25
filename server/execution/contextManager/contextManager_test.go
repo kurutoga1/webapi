@@ -1,16 +1,16 @@
 package contextManager_test
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
+	"io"
 	"log"
+	"mime/multipart"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"reflect"
 	"testing"
-	cp "webapi/cli/processFileOnServer"
 	"webapi/server/config"
 	ec "webapi/server/execution/contextManager"
 	"webapi/tests"
@@ -37,7 +37,7 @@ func init() {
 	}
 	currentDir = c
 	uploadFile = "uploadfile"
-	dummyParameta = "-a mike"
+	dummyParameta = "dummyParameta"
 	programName = "convertToJson"
 
 	addrs, ports, err = tests.GetSomeStartedProgramServer(1)
@@ -70,26 +70,56 @@ func tearDown() {
 }
 
 func GetDummyContextManager(cfg *config.Config) (ec.ContextManager, error) {
-
-	// 値をリクエストボディにセットする
-	reqBody := cp.UploadedInfo{Filename: uploadFile, Parameta: dummyParameta}
-
-	// jsonに変換
-	requestBody, err := json.Marshal(reqBody)
+	uploadFile = "uploadfile"
+	err := file.CreateSpecifiedFile(uploadFile, 2)
 	if err != nil {
-		return nil, err
+		panic(err.Error())
 	}
 
-	body := bytes.NewReader(requestBody)
+	pr, pw := io.Pipe()
+	form := multipart.NewWriter(pw)
 
-	_, _ = http.NewRequest(http.MethodPost, "/pro/"+programName, body)
+	go func() {
+		defer pw.Close()
+
+		err = form.WriteField("proName", "convertToJson")
+		if err != nil {
+			panic(err.Error())
+		}
+
+		err = form.WriteField("parameta", "dummyParameta")
+		if err != nil {
+			panic(err.Error())
+		}
+
+		file, err := os.Open(uploadFile)
+		if err != nil {
+			panic(err.Error())
+		}
+		w, err := form.CreateFormFile("file", filepath.Base(uploadFile))
+		if err != nil {
+			panic(err.Error())
+		}
+		_, err = io.Copy(w, file)
+		if err != nil {
+			panic(err.Error())
+		}
+		err = form.Close()
+		if err != nil {
+			panic(err.Error())
+		}
+	}()
+
+	r, err := http.NewRequest(http.MethodPost, "/pro/"+programName, pr)
+	if err != nil {
+		panic(err.Error())
+	}
+	r.Header.Set("Content-Type", form.FormDataContentType())
+
+	w := httptest.NewRecorder()
+
 	var ctx ec.ContextManager
-
-	// コマンド実行に必要な情報をcontextManagerにセットする
-	uploadedDir := filepath.Join(cfg.FileServer.Dir, cfg.FileServer.UploadDir)
-	uploadedFilePath := filepath.Join(uploadedDir, uploadFile)
-
-	ctx, err = ec.NewContextManager(programName, uploadedFilePath, dummyParameta, cfg)
+	ctx, err = ec.NewContextManager(w, r, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("GetDummyContextManager: %v", err)
 	}
