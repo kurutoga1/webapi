@@ -66,6 +66,9 @@ func ProgramHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	logf("programName: %v", ctx.ProgramName())
+	logf("uploadFilePath: %v", ctx.UploadedFilePath())
+	logf("parameta: %v", ctx.Parameta())
 	logf("command: %v", ctx.Command())
 	out = newExecuter.Execute(ctx)
 	logf("Status: %v", out.Status())

@@ -35,6 +35,10 @@ func GetPostRequestWithFileAndFields(uploadFile, url string, fields map[string]s
 		w, err = form.CreateFormFile("file", filepath.Base(uploadFile))
 		_, err = io.Copy(w, file)
 		err = form.Close()
+
+		if err != nil {
+			err = fmt.Errorf("GetPostRequestWithFileAndFields: %v", err)
+		}
 	}()
 
 	r, err = http.NewRequest(http.MethodPost, url, pr)

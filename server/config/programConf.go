@@ -5,21 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
-	log2 "webapi/utils/log"
 )
 
 var (
-	cfg    Config = *Load()
-	Logger *log.Logger
+	cfg Config = *Load()
 )
-
-func init() {
-	Logger = log.New(new(log2.NullWriter), "", log.Ldate|log.Ltime)
-}
 
 var proFilePath string
 
@@ -89,10 +82,8 @@ func (n *programConfig) Command() string {
 func (n *programConfig) Help() (string, error) {
 	bytes, err := ioutil.ReadFile(n.ProHelpPath)
 	if err != nil {
-		Logger.Printf("err: %v \n", err.Error())
-		return "", nil
+		return "", fmt.Errorf("Help: %v", err)
 	}
-	Logger.Printf("help txt: %v\n", string(bytes))
 	return string(bytes), nil
 }
 
@@ -102,24 +93,21 @@ func (n *programConfig) ReplacedCmd(infile string, outputDir string, parameta st
 	tmp1 := strings.Replace(n.ProCommand, "INPUTFILE", infile, 1)
 	tmp2 := strings.Replace(tmp1, "OUTPUTDIR", outputDir, 1)
 	cmd := strings.Replace(tmp2, "PARAMETA", parameta, 1)
-	Logger.Printf("ReplacedCmd: %v\n", cmd)
 	return cmd
 }
 
 // GetProConfByName はプログラムの名前を受け取り、programConfig.jsonの中を検索ヒットした
 // ものをProgramConfigHolder(インターフェース)として返す。
 func GetProConfByName(programName string) (ProgramConfigHolder, error) {
-	Logger.Printf("programName: %v\n", programName)
 	proConfigs, err := GetPrograms()
 	if err != nil {
-		return nil, fmt.Errorf("GetProConfByName: %v", errors.New("GetPrograms err: "+err.Error()))
+		return nil, fmt.Errorf("GetProConfByName: %v", err)
 	}
 	for _, program := range proConfigs {
 		if programName == program.Name() {
 			return program, nil
 		}
 	}
-	Logger.Printf("error msg: %v is not found.", programName)
 	return nil, fmt.Errorf("GetProConfByName: %v", errors.New(programName+" is not found."))
 }
 
@@ -132,19 +120,19 @@ func GetPrograms() ([]ProgramConfigHolder, error) {
 	inputPath := proFilePath
 	_, err := os.Stat(inputPath)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("GetPrograms: %v", err)
 	}
 
 	byteArray, err := ioutil.ReadFile(inputPath)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("GetPrograms: %v", err)
 	}
 
 	var j map[string][]map[string]interface{}
 
 	err = json.Unmarshal(byteArray, &j)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("GetPrograms: %v", err)
 	}
 
 	proConfList := make([]ProgramConfigHolder, 0, 20)
@@ -164,11 +152,11 @@ func GetPrograms() ([]ProgramConfigHolder, error) {
 func MapToStruct(m map[string]interface{}, val interface{}) error {
 	tmp, err := json.Marshal(m)
 	if err != nil {
-		return err
+		return fmt.Errorf("MapToStruct: %v", err)
 	}
 	err = json.Unmarshal(tmp, val)
 	if err != nil {
-		return err
+		return fmt.Errorf("MapToStruct: %v", err)
 	}
 	return nil
 }
