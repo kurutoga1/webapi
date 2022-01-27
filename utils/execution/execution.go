@@ -1,4 +1,4 @@
-package kernel
+package execution
 
 import (
 	"bytes"
@@ -35,11 +35,11 @@ func GetCmdFromStr(command string) *exec.Cmd {
 	return exec.Command(commands[0], commands[1:]...)
 }
 
-type ExecuteTimeOutError struct {
+type TimeoutError struct {
 	msg string
 }
 
-func (e *ExecuteTimeOutError) Error() string {
+func (e *TimeoutError) Error() string {
 	return fmt.Sprintf("execute timeout: " + e.msg)
 }
 
@@ -71,9 +71,9 @@ func ExecuteWithTimeout(command string, timeOut int) (stdout bytes.Buffer, stder
 		// プログラムが設定した時間以内に終了せずタイムアウトする場合。
 		err = cmd.Process.Kill()
 		if err != nil {
-			return stdout, stderr, fmt.Errorf("%v: %v", fName, &ExecuteTimeOutError{err.Error()})
+			return stdout, stderr, fmt.Errorf("%v: %v", fName, &TimeoutError{err.Error()})
 		}
-		return stdout, stderr, fmt.Errorf("%v: %v", fName, &ExecuteTimeOutError{})
+		return stdout, stderr, &TimeoutError{}
 
 	case err = <-done:
 		if err != nil {

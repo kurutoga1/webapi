@@ -7,7 +7,7 @@ package upload
 import (
 	"fmt"
 	"strings"
-	utils2 "webapi/utils/kernel"
+	utils2 "webapi/utils/execution"
 )
 
 type Uploader interface {

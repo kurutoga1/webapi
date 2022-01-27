@@ -8,17 +8,16 @@ ContextManagerの値をベースにコマンドを実行する。
 package executer
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
 	"webapi/server/execution/contextManager"
 	"webapi/server/execution/msgs"
 	"webapi/server/outputManager"
+	"webapi/utils/execution"
 	"webapi/utils/http"
 )
 
@@ -49,7 +48,7 @@ func (f *fileExecuter) Execute(ctx contextManager.ContextManager) (out outputMan
 	// コマンド実行
 	out, err := Exec(ctx.Command(), ctx.Config().ProgramTimeOut, ctx.Config().StdoutBufferSize, ctx.Config().StderrBufferSize)
 	if err != nil {
-		return errorOutWrap(out, err, msgs.PROGRAMERROR)
+		return errorOutWrap(out, err, out.Status())
 	}
 
 	// 出力ファイルたちはまだ通常のパスなのでそれを
@@ -77,65 +76,50 @@ func (f *fileExecuter) Execute(ctx contextManager.ContextManager) (out outputMan
 func Exec(command string, timeOut int, stdOutBufferSize, stdErrBufferSize int) (outputManager.OutputManager, error) {
 	var outputInfo = outputManager.NewOutputManager()
 
-	commands := strings.Split(command, " ")
+	var timeoutError *execution.TimeoutError
+	stdout, stderr, err := execution.ExecuteWithTimeout(command, timeOut)
 
-	cmd := exec.Command(commands[0], commands[1:]...)
-
-	var (
-		stdout bytes.Buffer
-		stderr bytes.Buffer
-	)
-
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-
-	err := cmd.Start()
 	if err != nil {
+		if errors.As(err, &timeoutError) {
+			// プログラムがタイムアウトした場合
+			outputInfo.SetStatus(msgs.PROGRAMTIMEOUT)
+			if err := outputInfo.SetStdOut(&stdout, stdOutBufferSize); err != nil {
+				return outputInfo, fmt.Errorf("Exec: %v ", err)
+			}
+
+			if err := outputInfo.SetStdErr(&stderr, stdErrBufferSize); err != nil {
+				return outputInfo, fmt.Errorf("Exec: %v ", err)
+			}
+			return outputInfo, errors.New("program time out error")
+		} else {
+			// プログラムがエラーで終了した場合
+			outputInfo.SetStatus(msgs.PROGRAMERROR)
+			if err := outputInfo.SetStdOut(&stdout, stdOutBufferSize); err != nil {
+				return outputInfo, fmt.Errorf("Exec: %v ", err)
+			}
+
+			if err := outputInfo.SetStdErr(&stderr, stdErrBufferSize); err != nil {
+				return outputInfo, fmt.Errorf("Exec: %v ", err)
+			}
+			if err != nil {
+				outputInfo.SetStatus(msgs.PROGRAMERROR)
+				return outputInfo, fmt.Errorf("Exec: %v ", err)
+			}
+		}
+	}
+
+	// 正常終了した場合
+	outputInfo.SetStatus(msgs.OK)
+	if err := outputInfo.SetStdOut(&stdout, stdOutBufferSize); err != nil {
 		return outputInfo, fmt.Errorf("Exec: %v ", err)
 	}
 
-	// cmd.Wait()はコマンドの中でエラーが出たらerrorをdoneチャネルに送信。エラーがない場合はnilを送る。
-	done := make(chan error)
-	go func() { done <- cmd.Wait() }()
-
-	// タイマーが終了したらチャネルを受け取るtimeoutチャネルを定義
-	timeout := time.After(time.Second * time.Duration(timeOut))
-
-	// timeoutチャネルが先に来た場合はコマンド実行のプロセスを終了する。
-	// doneチャネルが来た場合はどっちにしろコマンドが終了したという合図。
-	select {
-
-	case <-timeout:
-		// プログラムが設定した時間以内に終了せずタイムアウトする場合。
-		err := cmd.Process.Kill()
-		if err != nil {
-			return outputInfo, fmt.Errorf("Exec: %v ", err)
-		}
-		outputInfo.SetStatus(msgs.PROGRAMTIMEOUT)
-		if err := outputInfo.SetStdOut(&stdout, stdOutBufferSize); err != nil {
-			return outputInfo, fmt.Errorf("Exec: %v ", err)
-		}
-
-		if err := outputInfo.SetStdErr(&stderr, stdErrBufferSize); err != nil {
-			return outputInfo, fmt.Errorf("Exec: %v ", err)
-		}
-		return outputInfo, errors.New("program time out error")
-
-	case err := <-done:
-
-		// プログラムが設定した時間以内に終了した場合
-		outputInfo.SetStatus(msgs.OK)
-		if err := outputInfo.SetStdOut(&stdout, stdOutBufferSize); err != nil {
-			return outputInfo, fmt.Errorf("Exec: %v ", err)
-		}
-
-		if err := outputInfo.SetStdErr(&stderr, stdErrBufferSize); err != nil {
-			return outputInfo, fmt.Errorf("Exec: %v ", err)
-		}
-		if err != nil {
-			outputInfo.SetStatus(msgs.PROGRAMERROR)
-			return outputInfo, fmt.Errorf("Exec: %v ", err)
-		}
+	if err := outputInfo.SetStdErr(&stderr, stdErrBufferSize); err != nil {
+		return outputInfo, fmt.Errorf("Exec: %v ", err)
+	}
+	if err != nil {
+		outputInfo.SetStatus(msgs.PROGRAMERROR)
+		return outputInfo, fmt.Errorf("Exec: %v ", err)
 	}
 
 	return outputInfo, nil
