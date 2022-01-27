@@ -31,7 +31,7 @@ type downloader struct{}
 func (d *downloader) Download(url, outputDir string, done chan error, wg *sync.WaitGroup, mover file.Mover) {
 	defer wg.Done() // 関数終了時にデクリメント
 	command := "curl -OL " + url
-	_, _, err := kernel.Exec(command)
+	_, _, err := kernel.SimpleExec(command)
 	if err != nil {
 		done <- err
 		return

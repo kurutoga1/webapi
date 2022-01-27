@@ -118,9 +118,9 @@ func main() {
 	// プログラム一覧を確認する。 -a があれば実行
 	if displayAllProgramFlag {
 		command := fmt.Sprintf("curl %v/AllServerPrograms", apiGateWayServerAddr)
-		stdout, stderr, err := utils2.Exec(command)
+		stdout, stderr, err := utils2.SimpleExec(command)
 		if err != nil {
-			fmt.Printf("err from Exec(command: %v), err msg: %v \n", command, err.Error())
+			fmt.Printf("err from SimpleExec(command: %v), err msg: %v \n", command, err.Error())
 		} else if stdout != "" {
 			// プログラム情報がJSONで出力されるためそれをパースしてテーブルみたいに表示したいが時間がないのでそのまま出力するようにしている。
 			parser := cp.NewAllServerProgramsParser()
