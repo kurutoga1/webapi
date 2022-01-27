@@ -43,13 +43,9 @@ func errorOutWrap(out outputManager.OutputManager, err error, status string) out
 }
 
 func (f *fileExecuter) Execute(ctx contextManager.ContextManager) (out outputManager.OutputManager) {
-	out = outputManager.NewOutputManager()
 
 	// コマンド実行
-	out, err := Exec(ctx.Command(), ctx.Config().ProgramTimeOut, ctx.Config().StdoutBufferSize, ctx.Config().StderrBufferSize)
-	if err != nil {
-		return errorOutWrap(out, err, out.Status())
-	}
+	out = Exec(ctx.Command(), ctx.Config().ProgramTimeOut, ctx.Config().StdoutBufferSize, ctx.Config().StderrBufferSize)
 
 	// 出力ファイルたちはまだ通常のパスなのでそれを
 	// CURLで取得するためにURLパスに変換する。
@@ -68,61 +64,47 @@ func (f *fileExecuter) Execute(ctx contextManager.ContextManager) (out outputMan
 
 	out.SetOutURLs(outFileURLs)
 
-	out.SetStatus(msgs.OK)
+	//out.SetStatus(msgs.OK)
 	return
 }
 
 // Exec は実行するためのコマンド, 時間制限をもらい、OutputManagerインタフェースを返す
-func Exec(command string, timeOut int, stdOutBufferSize, stdErrBufferSize int) (outputManager.OutputManager, error) {
-	var outputInfo = outputManager.NewOutputManager()
+// エラーがでた場合もoutputInfoのエラーメッセージの中に格納する。
+func Exec(command string, timeOut int, stdOutBufferSize, stdErrBufferSize int) (out outputManager.OutputManager) {
+	out = outputManager.NewOutputManager()
 
 	var timeoutError *execution.TimeoutError
 	stdout, stderr, err := execution.ExecuteWithTimeout(command, timeOut)
 
+	if err1 := out.SetStdOut(&stdout, stdOutBufferSize); err1 != nil {
+		out.SetStatus(msgs.SERVERERROR)
+		out.SetErrorMsg(fmt.Sprintf("err: %v, err1: %v", err.Error(), err1.Error()))
+		return
+	}
+
+	if err2 := out.SetStdErr(&stderr, stdErrBufferSize); err2 != nil {
+		out.SetStatus(msgs.SERVERERROR)
+		out.SetErrorMsg(fmt.Sprintf("err: %v, err2: %v", err.Error(), err2.Error()))
+		return
+	}
+
 	if err != nil {
 		if errors.As(err, &timeoutError) {
 			// プログラムがタイムアウトした場合
-			outputInfo.SetStatus(msgs.PROGRAMTIMEOUT)
-			if err := outputInfo.SetStdOut(&stdout, stdOutBufferSize); err != nil {
-				return outputInfo, fmt.Errorf("Exec: %v ", err)
-			}
-
-			if err := outputInfo.SetStdErr(&stderr, stdErrBufferSize); err != nil {
-				return outputInfo, fmt.Errorf("Exec: %v ", err)
-			}
-			return outputInfo, errors.New("program time out error")
+			out.SetStatus(msgs.PROGRAMTIMEOUT)
+			out.SetErrorMsg(err.Error())
+			return
 		} else {
 			// プログラムがエラーで終了した場合
-			outputInfo.SetStatus(msgs.PROGRAMERROR)
-			if err := outputInfo.SetStdOut(&stdout, stdOutBufferSize); err != nil {
-				return outputInfo, fmt.Errorf("Exec: %v ", err)
-			}
-
-			if err := outputInfo.SetStdErr(&stderr, stdErrBufferSize); err != nil {
-				return outputInfo, fmt.Errorf("Exec: %v ", err)
-			}
-			if err != nil {
-				outputInfo.SetStatus(msgs.PROGRAMERROR)
-				return outputInfo, fmt.Errorf("Exec: %v ", err)
-			}
+			out.SetStatus(msgs.PROGRAMERROR)
+			out.SetErrorMsg(err.Error())
 		}
+	} else {
+		// 正常終了した場合
+		out.SetStatus(msgs.OK)
 	}
 
-	// 正常終了した場合
-	outputInfo.SetStatus(msgs.OK)
-	if err := outputInfo.SetStdOut(&stdout, stdOutBufferSize); err != nil {
-		return outputInfo, fmt.Errorf("Exec: %v ", err)
-	}
-
-	if err := outputInfo.SetStdErr(&stderr, stdErrBufferSize); err != nil {
-		return outputInfo, fmt.Errorf("Exec: %v ", err)
-	}
-	if err != nil {
-		outputInfo.SetStatus(msgs.PROGRAMERROR)
-		return outputInfo, fmt.Errorf("Exec: %v ", err)
-	}
-
-	return outputInfo, nil
+	return
 }
 
 // DeleteDirSomeTimeLater は一定時間後にディレクトリを削除する
