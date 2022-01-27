@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // GetLogger はファイルを受け取り、標準出力とログファイルへのログを書き出すロガーを返す。
@@ -48,7 +49,12 @@ func HttpTraceMiddleware(h http.Handler, logger *log.Logger) http.Handler {
 			return
 		}
 		logger.SetFlags(log.Ldate | log.Ltime)
-		logger.Printf("%s %s%s", method, rAddr, path)
+
+		// jsやcssのGETはいらないログなので避ける。
+		if !strings.Contains(path, ".css") && !strings.Contains(path, ".js") {
+			logger.Printf("%s %s%s", method, rAddr, path)
+		}
+
 		h.ServeHTTP(w, r)
 	})
 }

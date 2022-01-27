@@ -61,29 +61,3 @@ func ReadBytesWithSize(r io.Reader, bufferSize int) (string, error) {
 
 	return string(b), nil
 }
-
-// Move ファイルを移動させる
-// os.Renameはパーティションを飛び越えてファイルのrenameは出来ないため。
-func Move(sourcePath, destPath string) error {
-	inputFile, err := os.Open(sourcePath)
-	if err != nil {
-		return fmt.Errorf("MoveFile: %s", err)
-	}
-	outputFile, err := os.Create(destPath)
-	if err != nil {
-		inputFile.Close()
-		return fmt.Errorf("MoveFile: %s", err)
-	}
-	defer outputFile.Close()
-	_, err = io.Copy(outputFile, inputFile)
-	inputFile.Close()
-	if err != nil {
-		return fmt.Errorf("MoveFile: %s", err)
-	}
-	// The copy was successful, so now delete the original file
-	err = os.Remove(sourcePath)
-	if err != nil {
-		return fmt.Errorf("MoveFile: %s", err)
-	}
-	return nil
-}

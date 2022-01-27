@@ -214,7 +214,7 @@ func main() {
 	var wg sync.WaitGroup
 	for _, getOutFileURL := range res.OutURLs() {
 		wg.Add(1) // ゴルーチン起動のたびにインクリメント
-		go downloader.Download(getOutFileURL, outputDir, done, &wg)
+		go downloader.Download(getOutFileURL, outputDir, done, &wg, file.NewMover())
 	}
 	wg.Wait()   // ゴルーチンでAddしたものが全てDoneされたら次に処理がいく
 	close(done) // ゴルーチンが全て終了したのでチャネルをクローズする。

@@ -62,7 +62,7 @@ func TestDownload(t *testing.T) {
 	var wg sync.WaitGroup
 
 	wg.Add(1)
-	downloader.Download(url, "tmp", done, &wg)
+	downloader.Download(url, "tmp", done, &wg, file.NewMover())
 
 	t.Cleanup(func() {
 		tearDown()
