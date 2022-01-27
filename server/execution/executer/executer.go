@@ -46,12 +46,17 @@ func (f *fileExecuter) Execute(ctx contextManager.ContextManager) (out outputMan
 
 	// コマンド実行
 	out = Exec(ctx.Command(), ctx.Config().ProgramTimeOut, ctx.Config().StdoutBufferSize, ctx.Config().StderrBufferSize)
+	if out.Status() != msgs.OK {
+		return
+	}
 
 	// 出力ファイルたちはまだ通常のパスなのでそれを
 	// CURLで取得するためにURLパスに変換する。
 	outFileURLs, err := GetOutFileURLs(ctx.OutputDir(), ctx.Config().ServerIP, ctx.Config().ServerPort, ctx.Config().FileServer.Dir)
 	if err != nil {
-		return errorOutWrap(out, err, msgs.SERVERERROR)
+		out.SetStatus(msgs.SERVERERROR)
+		out.SetErrorMsg(err.Error())
+		return
 	}
 
 	// 時間経過後ファイルを削除
@@ -64,7 +69,6 @@ func (f *fileExecuter) Execute(ctx contextManager.ContextManager) (out outputMan
 
 	out.SetOutURLs(outFileURLs)
 
-	//out.SetStatus(msgs.OK)
 	return
 }
 
