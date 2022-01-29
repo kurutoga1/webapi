@@ -12,10 +12,11 @@ import (
 var (
 	NotAllowMethodError = "許可されていないメソッドです."
 	UploadSuccess       = "アップロードが成功しました。"
+	UploadSizeTooBig    = "アップロードされたファイルが大きすぎます"
 )
 
 func UploadFileSizeExceedError(maxUploadFileSize int64) string {
-	return fmt.Sprintf("アップロードされたファイルが大きすぎます。%vMB以下のファイルを指定してください", maxUploadFileSize)
+	return fmt.Sprintf("%v %vMB以下のファイルを指定してください", UploadSizeTooBig, maxUploadFileSize)
 }
 
 func PassDataToHtml(d interface{}) string {
