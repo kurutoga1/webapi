@@ -1,7 +1,19 @@
 {
-    "programs": [{
-        "name": "convertToJson",
-        "command": "python3 programs\\convertToJson/convert_json.py INPUTFILE OUTPUTDIR programs/convertToJson/config.json PARAMETA",
-        "helpPath": "programs/convertToJson/help.txt"
-    }]
+  "programs": [
+    {
+      "name": "convertToJson",
+      "command": "python3 programs\\convertToJson/convert_json.py INPUTFILE OUTPUTDIR programs/convertToJson/config.json PARAMETA",
+      "helpPath": "programs/convertToJson/help.txt"
+    },
+    {
+      "name": "sleep",
+      "command": "python3 programs\\sleep/convert_json.py INPUTFILE OUTPUTDIR PARAMETA",
+      "helpPath": "programs/convertToJson/help.txt"
+    },
+    {
+      "name": "err",
+      "command": "python3 programs\\err/convert_json.py INPUTFILE OUTPUTDIR PARAMETA",
+      "helpPath": "programs/convertToJson/help.txt"
+    }
+  ]
 }

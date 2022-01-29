@@ -41,7 +41,7 @@ func TestCreateSpecifiedFile(t *testing.T) {
 	}
 
 	f, err := os.Stat(testFile)
-	var wantSize int64 = 204800 // 200KB
+	var wantSize int64 = 209715200 // 200KB
 	if f.Size() != wantSize {
 		t.Errorf("got: %v, want: %v", f.Size(), wantSize)
 	}

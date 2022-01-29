@@ -1,6 +1,7 @@
 package http
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -9,45 +10,68 @@ import (
 	"path/filepath"
 )
 
-// GetPostRequestWithFileAndFields
-// プログラムサーバで実行するために必要なのはfile(multi-part)といくつかのパラメータ
-// いくつかのパラメータはfieldsパラメータにmapで渡す。
-// それらを一気にPOSTで送るリクエストを返す。
-func GetPostRequestWithFileAndFields(uploadFile, url string, fields map[string]string) (r *http.Request, err error) {
+type PostGetter interface {
+	// GetPostRequest
+	// サーバのURL,ローカルに作成済みのアップロードファイルとformに入れるパラメータのmapを受け取り
+	// それらをPOSTで送信するリクエストを返す。またサーバに送信はしていない。
+	GetPostRequest(url, uploadFile string, fields map[string]string) (r *http.Request, err error)
+}
 
-	pr, pw := io.Pipe()
-	form := multipart.NewWriter(pw)
+func NewPostGetter() PostGetter {
+	return &mainPoster{}
+}
 
-	go func() {
-		defer func(pw *io.PipeWriter) {
-			err = pw.Close()
-		}(pw)
+type mainPoster struct{}
 
-		// フォームにフィールドを追加
-		for field, value := range fields {
-			err = form.WriteField(field, value)
-		}
-
-		var file *os.File
-		file, err = os.Open(uploadFile)
-
-		var w io.Writer
-		w, err = form.CreateFormFile("file", filepath.Base(uploadFile))
-		_, err = io.Copy(w, file)
-		err = form.Close()
-
-		if err != nil {
-			err = fmt.Errorf("GetPostRequestWithFileAndFields: %v", err)
-		}
-	}()
-
-	r, err = http.NewRequest(http.MethodPost, url, pr)
-
+// GetPostRequest
+// サーバのURL,ローカルに作成済みのアップロードファイルとformに入れるパラメータのmapを受け取り
+// それらをPOSTで送信するリクエストを返す。またサーバに送信はしていない。
+func (m *mainPoster) GetPostRequest(url, uploadFile string, fields map[string]string) (r *http.Request, err error) {
+	file, err := os.Open(uploadFile)
 	if err != nil {
-		return nil, fmt.Errorf("GetPostRequestWithFileAndFields: %v", err)
+		return nil, fmt.Errorf("MainPost: %v", err)
 	}
 
-	r.Header.Set("Content-Type", form.FormDataContentType())
+	defer func(file *os.File) {
+		err = file.Close()
+		if err != nil {
+			err = fmt.Errorf("MainPost: %v", err)
+		}
+	}(file)
 
-	return r, nil
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+
+	// mapの中身をformに入れる
+	for key, value := range fields {
+		err := writer.WriteField(key, value)
+		if err != nil {
+			return nil, fmt.Errorf("MainPost: %v", err)
+		}
+	}
+
+	// ファイルをformに入れる
+	part, err := writer.CreateFormFile("file", filepath.Base(file.Name()))
+	if err != nil {
+		return nil, fmt.Errorf("MainPost: %v", err)
+	}
+
+	_, err = io.Copy(part, file)
+	if err != nil {
+		return nil, fmt.Errorf("MainPost: %v", err)
+	}
+
+	err = writer.Close()
+	if err != nil {
+		return nil, fmt.Errorf("MainPost: %v", err)
+	}
+
+	request, err := http.NewRequest("POST", url, body)
+	if err != nil {
+		return nil, fmt.Errorf("MainPost: %v", err)
+	}
+
+	request.Header.Set("Content-Type", writer.FormDataContentType())
+
+	return request, nil
 }

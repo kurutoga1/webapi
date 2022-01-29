@@ -78,7 +78,9 @@ func GetDummyContextManager(cfg *config.Config) (ec.ContextManager, error) {
 		"proName":  "convertToJson",
 		"parameta": "dummyParameta",
 	}
-	r, err := http.GetPostRequestWithFileAndFields(uploadFile, "/pro/convertToJson", fields)
+
+	poster := http.NewPostGetter()
+	r, err := poster.GetPostRequest("/pro/convertToJson", uploadFile, fields)
 	if err != nil {
 		panic(err.Error())
 	}

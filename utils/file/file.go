@@ -20,7 +20,7 @@ func FileExists(filename string) bool {
 
 // CreateSpecifiedFile 特定のサイズのファイルを作成する。
 func CreateSpecifiedFile(path string, kb int64) error {
-	size := int64(1024 * kb)
+	size := int64(1024 * 1024 * kb)
 	fd, err := os.Create(path)
 	if err != nil {
 		return fmt.Errorf("CreateSpecifiedFile: %v", err)

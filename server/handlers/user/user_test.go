@@ -68,7 +68,8 @@ func TestExecHandler(t *testing.T) {
 		"proName":  "convertToJson",
 		"parameta": "dummyParameta",
 	}
-	r, err := http2.GetPostRequestWithFileAndFields(uploadFile, "/pro/convertToJson", fields)
+	poster := http2.NewPostGetter()
+	r, err := poster.GetPostRequest("/pro/convertToJson", uploadFile, fields)
 	if err != nil {
 		panic(err.Error())
 	}

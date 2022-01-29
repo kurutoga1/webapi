@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 	"webapi/server/execution/msgs"
 	sh "webapi/server/handlers"
@@ -137,7 +138,8 @@ func testProgramHandler(t *testing.T, proName string) (*httptest.ResponseRecorde
 		"proName":  "convertToJson",
 		"parameta": "dummyParameta",
 	}
-	r, err := http2.GetPostRequestWithFileAndFields(uploadFile, "/pro/"+proName, fields)
+	poster := http2.NewPostGetter()
+	r, err := poster.GetPostRequest("/pro/"+proName, uploadFile, fields)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -168,19 +170,21 @@ func TestProgramAllHandler(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v",
+		t.Errorf("handler returned wrong status code: got: %v want: %v",
 			status, http.StatusOK)
 	}
 
-	expected := `{
-    "convertToJson": {
-        "command": "python3 /Users/hibiki/go/src/webapi/server/config/programs/convertToJson/convert_json.py INPUTFILE OUTPUTDIR /Users/hibiki/go/src/webapi/server/config/programs/convertToJson/config.json PARAMETA",
-        "help": "入力ファイルに拡張子をつけて出力します\nあまりサイズが大きすぎるファイルを処理できません。"
-    }
-}`
-	if rr.Body.String() != expected {
-		t.Errorf("handler returned unexpected body: got %v want %v",
-			rr.Body.String(), expected)
+	var m map[string]interface{}
+	err = json.Unmarshal(rr.Body.Bytes(), &m)
+	if err != nil {
+		t.Errorf("%v is not json format. err msg: %v", rr.Body.String(), err.Error())
+	}
+
+	expectedProgramNames := []string{"convertToJson", "err", "sleep"}
+	for _, name := range expectedProgramNames {
+		if !strings.Contains(rr.Body.String(), name) {
+			t.Errorf("%v is not contaned of %v", name, rr.Body.String())
+		}
 	}
 
 	t.Cleanup(func() {

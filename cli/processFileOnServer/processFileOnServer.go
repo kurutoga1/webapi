@@ -33,7 +33,9 @@ func (f *fileProcessor) Process(proName, url, uploadFilePath, parameta string) (
 		"proName":  proName,
 		"parameta": parameta,
 	}
-	req, err := http2.GetPostRequestWithFileAndFields(uploadFilePath, url, fields)
+
+	poster := http2.NewPostGetter()
+	req, err := poster.GetPostRequest(url, uploadFilePath, fields)
 	if err != nil {
 		return &outLib.OutputInfo{}, fmt.Errorf("Process: %v", err)
 	}
@@ -45,14 +47,17 @@ func (f *fileProcessor) Process(proName, url, uploadFilePath, parameta string) (
 	}
 
 	defer func(Body io.ReadCloser) {
-		err = Body.Close()
+		err1 := Body.Close()
+		if err == nil {
+			err = err1
+		}
 	}(resp.Body)
 
 	// レスポンスを受け取り、格納する。
 	var res *outLib.OutputInfo
 	b, err := ioutil.ReadAll(resp.Body)
 	if err := json.Unmarshal(b, &res); err != nil {
-		return &outLib.OutputInfo{}, fmt.Errorf("Process: %v", err)
+		return &outLib.OutputInfo{}, fmt.Errorf("Process: %v, response body from server: %v", err, string(b))
 	}
 
 	if res.OutputURLs == nil {

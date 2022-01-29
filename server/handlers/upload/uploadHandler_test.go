@@ -21,7 +21,7 @@ var (
 func init() {
 	uploadFile = "200MB.txt"
 	if !uf.FileExists(uploadFile) {
-		err := uf.CreateSpecifiedFile(uploadFile, 200000)
+		err := uf.CreateSpecifiedFile(uploadFile, 200)
 		if err != nil {
 			panic(err.Error())
 		}
