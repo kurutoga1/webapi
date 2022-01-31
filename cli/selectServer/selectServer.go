@@ -32,7 +32,9 @@ func (s *selector) Select(url string) (addr string, err error) {
 	resp, _ := http.Get(url)
 
 	defer func(Body io.ReadCloser) {
-		err = Body.Close()
+		if err == nil {
+			err = Body.Close()
+		}
 	}(resp.Body)
 
 	byteArray, _ := ioutil.ReadAll(resp.Body)

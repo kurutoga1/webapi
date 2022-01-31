@@ -5,7 +5,6 @@
 package program
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -14,6 +13,7 @@ import (
 	"webapi/server/execution/executer"
 	"webapi/server/execution/msgs"
 	"webapi/server/outputManager"
+	http2 "webapi/utils/http"
 )
 
 // ProgramHandler はプログラムを実行するためのハンドラー。処理結果をJSON文字列で返す。
@@ -41,21 +41,7 @@ func ProgramHandler(l *log.Logger, cfg *config.Config) http.HandlerFunc {
 			out.SetStatus(msgs.SERVERERROR)
 			logf(msg)
 
-			// jsonに変換
-			b, err := json.MarshalIndent(out, "", "    ")
-			if err != nil {
-				logf(err.Error())
-				http.Error(w, err.Error(), 500)
-				return
-			}
-
-			// JSONを表示
-			_, err = fmt.Fprintf(w, string(b))
-			if err != nil {
-				logf(err.Error())
-				http.Error(w, err.Error(), 500)
-				return
-			}
+			http2.PrintAsJSON(w, out)
 			return
 		}
 
@@ -74,21 +60,8 @@ func ProgramHandler(l *log.Logger, cfg *config.Config) http.HandlerFunc {
 		logf("Status: %v", out.Status())
 		logf("ErrMsg: %v", out.ErrorMsg())
 
-		// JSONに変換
-		b, err := json.Marshal(out)
-		if err != nil {
-			logf(err.Error())
-			http.Error(w, err.Error(), 500)
-			return
-		}
-
-		// JSONを表示
-		_, err = fmt.Fprintf(w, string(b))
-		if err != nil {
-			logf(err.Error())
-			http.Error(w, err.Error(), 500)
-			return
-		}
+		http2.PrintAsJSON(w, out)
+		return
 	}
 }
 
@@ -119,19 +92,6 @@ func ProgramAllHandler(w http.ResponseWriter, r *http.Request) {
 		m1["help"] = help
 	}
 
-	// JSONに変換
-	b, err := json.MarshalIndent(m, "", "    ")
-	if err != nil {
-		logf(err.Error())
-		http.Error(w, err.Error(), 500)
-		return
-	}
-
-	// JSONを表示
-	_, err = fmt.Fprintf(w, string(b))
-	if err != nil {
-		logf(err.Error())
-		http.Error(w, err.Error(), 500)
-		return
-	}
+	http2.PrintAsJSON(w, m)
+	return
 }

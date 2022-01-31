@@ -106,7 +106,7 @@ func main() {
 	// 生きているサーバにアクセスしていき、メモリ状況を取得、一番消費メモリが少ないサーバを取得する
 	serverMemoryMap, err := minimumServerSelector.GetServerMemoryMap(aliveServers, "/json/health/memory", memoryGetter)
 	if err != nil {
-		log.Fatalf("err: %v\n", err)
+		log.Fatalf("APIゲートウェイサーバにてエラーが発生しました。err: %v\n", err)
 	}
 
 	minUrl := minimumServerSelector.GetMinimumMemoryServer(serverMemoryMap)

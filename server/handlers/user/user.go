@@ -8,11 +8,11 @@ import (
 	"net/http"
 	"path/filepath"
 	"strings"
-	"text/template"
 	"webapi/server/config"
 	"webapi/server/execution/contextManager"
 	"webapi/server/execution/executer"
 	"webapi/server/outputManager"
+	http2 "webapi/utils/http"
 )
 
 var cfg = config.Load()
@@ -73,18 +73,8 @@ func UserTopHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	d := data{ProInfos: pList, ServerIP: cfg.ServerIP, ServerPort: cfg.ServerPort}
 
-	t, err := template.ParseFiles(serveHtml)
-	if err != nil {
-		logf(err.Error())
-		http.Error(w, err.Error(), 500)
-		return
-	}
-
-	if err := t.Execute(w, d); err != nil {
-		logf(err.Error())
-		http.Error(w, err.Error(), 500)
-		return
-	}
+	http2.RenderTemplate(w, serveHtml, d)
+	return
 }
 
 // PrepareExecHandler はプログラムを実行するためのwebページ
@@ -94,24 +84,18 @@ func PrepareExecHandler(w http.ResponseWriter, r *http.Request) {
 
 	proName := r.FormValue("proName")
 	p, err := config.GetProConfByName(proName)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	type data struct {
 		Name    string
 		Command string
 	}
 	d := data{Name: p.Name(), Command: p.Command()}
 
-	t, err := template.ParseFiles(serveHtml)
-	if err != nil {
-		logf(err.Error())
-		http.Error(w, err.Error(), 500)
-		return
-	}
-
-	if err := t.Execute(w, d); err != nil {
-		logf(err.Error())
-		http.Error(w, err.Error(), 500)
-		return
-	}
+	http2.RenderTemplate(w, serveHtml, d)
+	return
 }
 
 // ExecHandler はプログラムを実行するためのwebページを表示するハンドラ。
@@ -120,7 +104,6 @@ func PrepareExecHandler(w http.ResponseWriter, r *http.Request) {
 // 実行結果をwebページに挿入し、webページを返す。
 func ExecHandler(w http.ResponseWriter, r *http.Request) {
 	fName := "ExecHandler"
-	serveHtml := filepath.Join(cfg.TemplatesDir, "execResult.html")
 
 	ctx, err := contextManager.NewContextManager(w, r, cfg)
 	if err != nil {
@@ -159,16 +142,7 @@ func ExecHandler(w http.ResponseWriter, r *http.Request) {
 		Stderr:                  outputInfo.StdErr(),
 	}
 
-	t, err := template.ParseFiles(serveHtml)
-	if err != nil {
-		logf(err.Error())
-		http.Error(w, err.Error(), 500)
-		return
-	}
-
-	if err := t.Execute(w, d); err != nil {
-		logf(err.Error())
-		http.Error(w, err.Error(), 500)
-		return
-	}
+	serveHtml := filepath.Join(cfg.TemplatesDir, "execResult.html")
+	http2.RenderTemplate(w, serveHtml, d)
+	return
 }
