@@ -2,7 +2,7 @@
 全てのハンドラをセットしたrouterを返すGetServeMuxを定義している。
 */
 
-package handlers
+package router
 
 import (
 	"log"
@@ -12,7 +12,7 @@ import (
 	"webapi/server/handlers/program"
 	"webapi/server/handlers/upload"
 	"webapi/server/handlers/user"
-	"webapi/utils/hanlders"
+	http2 "webapi/utils/http"
 	ul "webapi/utils/log"
 )
 
@@ -23,8 +23,8 @@ var (
 	logger *log.Logger = ul.GetLogger(logFile)
 )
 
-// NewRouter ハンドラをセットしたrouterを返す。
-func NewRouter(fileServerDir string) *http.ServeMux {
+// New ハンドラをセットしたrouterを返す。
+func New(fileServerDir string) *http.ServeMux {
 	router := http.NewServeMux()
 
 	// ファイルサーバーの機能のハンドラ
@@ -49,13 +49,13 @@ func NewRouter(fileServerDir string) *http.ServeMux {
 	router.HandleFunc("/user/exec", user.ExecHandler)
 
 	// このサーバプログラムのメモリ状態をJSONで表示するAPI
-	router.HandleFunc("/json/health/memory", hanlders.GetRuntimeHandler)
+	router.HandleFunc("/json/health/memory", http2.GetRuntimeHandler)
 
 	// プログラムサーバに登録してあるプログラム一覧をJSONで表示するAPI
 	router.HandleFunc("/json/program/all", program.ProgramAllHandler)
 
 	// このサーバが生きているかを判断するのに使用するハンドラ
-	router.HandleFunc("/health", hanlders.HealthHandler)
+	router.HandleFunc("/health", http2.HealthHandler)
 
 	return router
 }

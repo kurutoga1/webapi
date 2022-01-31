@@ -9,10 +9,10 @@ import (
 	"strings"
 	"testing"
 	"webapi/server/config"
-	"webapi/server/execution/msgs"
-	sh "webapi/server/handlers"
 	"webapi/server/handlers/program"
+	"webapi/server/msgs"
 	"webapi/server/outputManager"
+	sh "webapi/server/router"
 	"webapi/utils/file"
 	http2 "webapi/utils/http"
 	u "webapi/utils/upload"
@@ -38,7 +38,7 @@ func set() {
 	port := http2.GetPortFromURL(addr)
 
 	go func() {
-		if err := http.ListenAndServe(":"+port, sh.NewRouter("fileserver")); err != nil {
+		if err := http.ListenAndServe(":"+port, sh.New("fileserver")); err != nil {
 			panic(err.Error())
 		}
 	}()

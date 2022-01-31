@@ -29,10 +29,9 @@ import (
 	"webapi/utils/file"
 	log2 "webapi/utils/log"
 
-	cp "webapi/cli/arrangeAllProgramJSON"
 	"webapi/cli/config"
 	"webapi/cli/download"
-	p "webapi/cli/processFileOnServer"
+	"webapi/cli/post"
 )
 
 func main() {
@@ -50,7 +49,7 @@ func main() {
 	flag.StringVar(&proName, "name", "", "(required) 登録プログラムの名称を入れてください。(必須) 登録されているプログラムは-aで参照できます。例 -> -name convertToJson")
 	flag.StringVar(&inputFile, "i", "", "(required) 登録プログラムに処理させる入力ファイルのパスを指定してください。(必須) 例 -> -i ./input/test.txt")
 	flag.StringVar(&outputDir, "o", "", "(required) 登録プログラムの出力ファイルを出力するディレクトリを指定してください。(必須) 例 -> -o ./proOut")
-	parametaUsage := "(option) 登録プログラムに使用するパラメータを指定してください。例 -> -p " + strconv.Quote("-name mike")
+	parametaUsage := "(option) 登録プログラムに使用するパラメータを指定してください。例 -> -post " + strconv.Quote("-name mike")
 	flag.StringVar(&parameta, "p", "", parametaUsage)
 	flag.BoolVar(&LogFlag, "l", false, "(option) -lを付与すると詳細なログを出力します。通常は使用しません。")
 	flag.BoolVar(&displayAllProgramFlag, "a", false, fmt.Sprintf("(option) -aを付与するとwebサーバに登録されているプログラムのリストを表示します。使用例 -> %s -a", flag.CommandLine.Name()))
@@ -73,7 +72,7 @@ func main() {
 	flag.CommandLine.Usage = func() {
 		o := flag.CommandLine.Output()
 		fmt.Fprintf(o, "\nUsage: %s -name <プログラム名> -i <入力ファイル> -o <出力ディレクトリ>\n", flag.CommandLine.Name())
-		fmt.Fprintf(o, "\nDescription: プログラムサーバに登録してあるプログラムを起動し、サーバ上で処理させ出力を返す。\nAPIゲートウェイサーバのアドレスはカレントディレクトリのconfig.jsonに記述してください。 \n 例:%s -name convertToJson -i test.txt -o out -p %v\n \n\nOptions:\n", flag.CommandLine.Name(), strconv.Quote("-s ss -d dd"))
+		fmt.Fprintf(o, "\nDescription: プログラムサーバに登録してあるプログラムを起動し、サーバ上で処理させ出力を返す。\nAPIゲートウェイサーバのアドレスはカレントディレクトリのconfig.jsonに記述してください。 \n 例:%s -name convertToJson -i test.txt -o out -post %v\n \n\nOptions:\n", flag.CommandLine.Name(), strconv.Quote("-s ss -d dd"))
 		flag.PrintDefaults()
 		fmt.Fprintf(o, "\nUpdated date 2022.01.12 by morituka. \n\n")
 	}
@@ -122,15 +121,7 @@ func main() {
 		if err != nil {
 			fmt.Printf("err from SimpleExec(command: %v), err msg: %v \n", command, err.Error())
 		} else if stdout != "" {
-			// プログラム情報がJSONで出力されるためそれをパースしてテーブルみたいに表示したいが時間がないのでそのまま出力するようにしている。
-			parser := cp.NewAllServerProgramsParser()
-			parsed, err := parser.Parse(stdout)
-			if err != nil {
-				fmt.Printf("err from Parse. err msg: %v, stdout: %v \n", err.Error(), stdout)
-			} else {
-				// パースに成功し、テーブルのようなものが表示される予定。現在はJSONのまま。
-				fmt.Println(parsed)
-			}
+			fmt.Println(stdout)
 		} else {
 			// stdoutが空の場合
 			fmt.Printf("err. stdout is empty. stderr: %v \n", stderr)
@@ -183,8 +174,8 @@ func main() {
 
 	// inputfile,parametaをサーバへ送信しサーバー上で処理する。
 	proURL := fmt.Sprintf("%v/pro/%v", programServerAddr, proName)
-	processor := p.NewFileProcessor()
-	res, err := processor.Process(proName, proURL, inputFile, parameta)
+	poster := post.NewPoster()
+	res, err := poster.Post(proName, proURL, inputFile, parameta)
 	if err != nil {
 		fmt.Printf("サーバ上でエラーが発生しました。 err msg: %v \n", err.Error())
 		os.Exit(1)

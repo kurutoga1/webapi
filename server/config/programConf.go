@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"webapi/utils/file"
 )
 
 var (
@@ -20,7 +21,7 @@ func SetProConfPath(proConfName string) {
 	if strings.Contains(proConfName, string(filepath.Separator)) {
 		panic("proConfName want a file base name!!!!")
 	}
-	currentDir, err := getCurrentDir()
+	currentDir, err := file.GetCurrentDir()
 	if err != nil {
 		panic("err msg: " + err.Error())
 	}
@@ -60,7 +61,7 @@ func (n *programConfig) ToProperPath() {
 	}
 
 	// コマンド、helpなどにcurrentDirを追加し、フルパスにする。
-	p1, err := getCurrentDir()
+	p1, err := file.GetCurrentDir()
 	if err != nil {
 		panic("err msg: " + err.Error())
 	}

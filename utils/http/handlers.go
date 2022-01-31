@@ -1,4 +1,4 @@
-package hanlders
+package http
 
 import (
 	"encoding/json"

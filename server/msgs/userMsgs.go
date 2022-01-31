@@ -3,7 +3,7 @@
 ここにわかりやすく書いておいて、他で使用する。
 */
 
-package messages
+package msgs
 
 import (
 	"fmt"

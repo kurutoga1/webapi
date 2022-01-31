@@ -17,7 +17,7 @@ var (
 )
 
 func SetConfPath(confName string) {
-	currentDir, err := getCurrentDir()
+	currentDir, err := file.GetCurrentDir()
 	if err != nil {
 		panic("err msg: " + err.Error())
 	}
@@ -104,7 +104,7 @@ func Load() *Config {
 	}
 
 	// templatesDir(html)が入っているディレクトリにフルパスを記述する。
-	currentDir, err := getCurrentDir()
+	currentDir, err := file.GetCurrentDir()
 	if err != nil {
 		panic("panic: " + err.Error())
 	}

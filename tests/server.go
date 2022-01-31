@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"time"
-	sh "webapi/server/handlers"
+	sh "webapi/server/router"
 	http2 "webapi/utils/http"
 )
 
@@ -23,7 +23,7 @@ func GetSomeStartedProgramServer(numberOfServer int) (addrs, ports []string, err
 
 		var done chan error
 		go func() {
-			done <- http.ListenAndServe(":"+port, sh.NewRouter("fileserver"+port))
+			done <- http.ListenAndServe(":"+port, sh.New("fileserver"+port))
 		}()
 		// １秒かかる前にserverStartに値が入ってきたということはhttp.ListenAndServeがエラーですぐ終了した場合。
 		// １秒かかったということはhttp.ListenAndServeに成功したということ。

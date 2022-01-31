@@ -11,9 +11,9 @@ import (
 	"webapi/server/config"
 	"webapi/server/execution/contextManager"
 	executer2 "webapi/server/execution/executer"
-	"webapi/server/execution/msgs"
-	sh "webapi/server/handlers"
+	"webapi/server/msgs"
 	"webapi/server/outputManager"
+	sh "webapi/server/router"
 	"webapi/utils/file"
 	http2 "webapi/utils/http"
 )
@@ -41,7 +41,7 @@ func init() {
 	programName = "convertToJson"
 
 	go func() {
-		if err := http.ListenAndServe(":8882", sh.NewRouter("fileserver")); err != nil {
+		if err := http.ListenAndServe(":8882", sh.New("fileserver")); err != nil {
 			panic(err.Error())
 		}
 	}()

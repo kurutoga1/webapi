@@ -1,4 +1,4 @@
-package processFileOnServer_test
+package post_test
 
 import (
 	"fmt"
@@ -7,8 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	p "webapi/cli/processFileOnServer"
-	sh "webapi/server/handlers"
+	p "webapi/cli/post"
+	"webapi/server/router"
 	"webapi/utils/file"
 	u "webapi/utils/upload"
 )
@@ -27,7 +27,7 @@ func init() {
 	uploadFile = "uploadfile"
 
 	go func() {
-		if err := http.ListenAndServe(":8881", sh.NewRouter("fileserver")); err != nil {
+		if err := http.ListenAndServe(":8881", router.New("fileserver")); err != nil {
 			panic(err.Error())
 		}
 	}()
@@ -61,11 +61,11 @@ func TestProcessFileOnServer(t *testing.T) {
 	// 処理させるためのurl
 	url := fmt.Sprintf("%v/pro/%v", serverURL, programName)
 
-	processor := p.NewFileProcessor()
+	processor := p.NewPoster()
 
-	res, err := processor.Process(programName, url, basename, parameta)
+	res, err := processor.Post(programName, url, basename, parameta)
 	if err != nil {
-		t.Errorf("err from Process: %v \n", err.Error())
+		t.Errorf("err from Post: %v \n", err.Error())
 	}
 
 	outBase := filepath.Base(res.OutURLs()[0])

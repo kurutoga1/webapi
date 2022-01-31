@@ -14,7 +14,7 @@ import (
 	"os"
 	"path/filepath"
 	"webapi/server/config"
-	msg "webapi/server/messages"
+	msg "webapi/server/msgs"
 	int2 "webapi/utils/int"
 )
 

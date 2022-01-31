@@ -10,10 +10,10 @@ import (
 	"net/http"
 	"path/filepath"
 	"sync"
+	"webapi/server/router"
 	int2 "webapi/utils/int"
 
 	"webapi/server/config"
-	"webapi/server/handlers"
 	ul "webapi/utils/log"
 )
 
@@ -29,7 +29,7 @@ func init() {}
 
 func main() {
 
-	router := handlers.NewRouter(cfg.FileServer.Dir)
+	router := router.New(cfg.FileServer.Dir)
 
 	port := ":" + cfg.ServerPort
 	fmt.Printf("web server on %v%v\n", cfg.ServerIP, port)

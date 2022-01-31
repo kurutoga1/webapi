@@ -2,7 +2,7 @@
 プロセスサーバでプログラムを実行させる機能を提供するパッケージ
 */
 
-package processFileOnServer
+package post
 
 import (
 	"encoding/json"
@@ -14,20 +14,20 @@ import (
 	http2 "webapi/utils/http"
 )
 
-type FileProcessor interface {
-	Process(proName, url, uploadFilePath, parameta string) (outLib.OutputManager, error)
+type Poster interface {
+	Post(proName, url, uploadFilePath, parameta string) (outLib.OutputManager, error)
 }
 
-func NewFileProcessor() FileProcessor {
+func NewPoster() Poster {
 	return &fileProcessor{}
 }
 
 type fileProcessor struct{}
 
-// Process はリクエストの中にfile(multi-part)とパラメータを付与し、サーバへ送信する。
+// Post はリクエストの中にfile(multi-part)とパラメータを付与し、サーバへ送信する。
 // サーバのurl, アップロードしたuploadedFile、サーバ上でコマンドを実行するためのparametaを受け取る
 // 返り値はoutLib.OutputManagerインタフェースを返す。
-func (f *fileProcessor) Process(proName, url, uploadFilePath, parameta string) (outlib outLib.OutputManager, err error) {
+func (f *fileProcessor) Post(proName, url, uploadFilePath, parameta string) (outlib outLib.OutputManager, err error) {
 
 	fields := map[string]string{
 		"proName":  proName,
@@ -37,13 +37,13 @@ func (f *fileProcessor) Process(proName, url, uploadFilePath, parameta string) (
 	poster := http2.NewPostGetter()
 	req, err := poster.GetPostRequest(url, uploadFilePath, fields)
 	if err != nil {
-		return &outLib.OutputInfo{}, fmt.Errorf("Process: %v", err)
+		return &outLib.OutputInfo{}, fmt.Errorf("Post: %v", err)
 	}
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return &outLib.OutputInfo{}, fmt.Errorf("Process: %v", err)
+		return &outLib.OutputInfo{}, fmt.Errorf("Post: %v", err)
 	}
 
 	defer func(Body io.ReadCloser) {
@@ -57,7 +57,7 @@ func (f *fileProcessor) Process(proName, url, uploadFilePath, parameta string) (
 	var res *outLib.OutputInfo
 	b, err := ioutil.ReadAll(resp.Body)
 	if err := json.Unmarshal(b, &res); err != nil {
-		return &outLib.OutputInfo{}, fmt.Errorf("Process: %v, response body from server: %v", err, string(b))
+		return &outLib.OutputInfo{}, fmt.Errorf("Post: %v, response body from server: %v", err, string(b))
 	}
 
 	if res.OutputURLs == nil {

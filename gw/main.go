@@ -7,6 +7,7 @@ import (
 	"sync"
 	"webapi/gw/config"
 	"webapi/gw/handlers"
+	"webapi/gw/router"
 	int2 "webapi/utils/int"
 	log2 "webapi/utils/log"
 )
@@ -29,7 +30,7 @@ func main() {
 	addr := cfg.LoadBalancerServerIP + ":" + cfg.LoadBalancerServerPort
 	fmt.Printf("web server on: %v \n", addr)
 
-	router := handlers.GetServeMux()
+	router := router.New()
 
 	rotater := log2.NewLogRotater(int2.KBToByte(cfg.RotateShavingKB), int2.KBToByte(cfg.RotateMaxKB), &logMu, logger, cfg.LogPath)
 

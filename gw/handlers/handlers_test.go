@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 	gh "webapi/gw/handlers"
-	sh "webapi/server/handlers"
+	sh "webapi/server/router"
 	"webapi/utils/file"
 )
 
@@ -42,19 +42,19 @@ func init() {
 func serverSet() {
 	// servers.jsonのExpectedAliveServersを見ながらサーバを立てる。
 	go func() {
-		if err := http.ListenAndServe(":8081", sh.NewRouter("fileserver")); err != nil {
+		if err := http.ListenAndServe(":8081", sh.New("fileserver")); err != nil {
 			panic(err.Error())
 		}
 	}()
 
 	go func() {
-		if err := http.ListenAndServe(":8082", sh.NewRouter("fileserver")); err != nil {
+		if err := http.ListenAndServe(":8082", sh.New("fileserver")); err != nil {
 			panic(err.Error())
 		}
 	}()
 
 	go func() {
-		if err := http.ListenAndServe(":8083", sh.NewRouter("fileserver")); err != nil {
+		if err := http.ListenAndServe(":8083", sh.New("fileserver")); err != nil {
 			panic(err.Error())
 		}
 	}()

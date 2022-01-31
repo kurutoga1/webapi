@@ -1,35 +1,36 @@
-package handlers
+package router
 
 import (
 	"net/http"
-	"webapi/utils/hanlders"
+	"webapi/gw/handlers"
+	http2 "webapi/utils/http"
 )
 
-func GetServeMux() *http.ServeMux {
+func New() *http.ServeMux {
 	router := http.NewServeMux()
 
 	// ユーザがこのハンドラにアクセスした場合は全てのサーバにアクセスし、全てのプログラムを表示する。
-	router.HandleFunc("/userTop", UserTopHandler)
+	router.HandleFunc("/userTop", handlers.UserTopHandler)
 
 	router.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
 	// コマンドラインからはここにアクセスし、メモリ使用量が一番低いサーバのURLを返す。
-	router.HandleFunc("/MinimumMemoryServer", GetMinimumMemoryServerHandler)
+	router.HandleFunc("/MinimumMemoryServer", handlers.GetMinimumMemoryServerHandler)
 
 	// コマンドラインからここにアクセスし、プログラムがあるかつメモリ使用量が一番低いサーバのURLを返す。
-	router.HandleFunc("/SuitableServer/", GetSuitableServerHandler)
+	router.HandleFunc("/SuitableServer/", handlers.GetSuitableServerHandler)
 
 	// 現在稼働しているサーバを返すAPI
-	router.HandleFunc("/AliveServers", GetAliveServersHandler)
+	router.HandleFunc("/AliveServers", handlers.GetAliveServersHandler)
 
 	// 生きている全てのサーバのプログラムを取得してJSONで表示するAPI
-	router.HandleFunc("/AllServerPrograms", GetAllProgramsHandler)
+	router.HandleFunc("/AllServerPrograms", handlers.GetAllProgramsHandler)
 
 	// このサーバが生きているかを判断するのに使用するハンドラ
-	router.HandleFunc("/health", hanlders.HealthHandler)
+	router.HandleFunc("/health", http2.HealthHandler)
 
 	// このサーバプログラムのメモリ状態をJSONで表示するAPI
-	router.HandleFunc("/json/health/memory", hanlders.GetRuntimeHandler)
+	router.HandleFunc("/json/health/memory", http2.GetRuntimeHandler)
 
 	return router
 }

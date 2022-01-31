@@ -7,9 +7,10 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 	"webapi/cli/selectServer"
-	gw "webapi/gw/handlers"
-	sh "webapi/server/handlers"
+	gw "webapi/gw/router"
+	sh "webapi/server/router"
 	"webapi/utils/file"
 )
 
@@ -25,23 +26,20 @@ func init() {
 	currentDir = c
 
 	// 下の３つのポートはgw/config/config.jsonの設定値と同じにしなければならない。
+	// 下の３つはプログラムサーバの起動
+	ports := []string{"8081", "8082", "8083"}
+	for _, p := range ports {
+		go func() {
+			if err := http.ListenAndServe(":"+p, sh.New("fileserver")); err != nil {
+				panic(err)
+			}
+		}()
+		time.Sleep(1 * time.Second)
+	}
+
+	// APIGWサーバを起動
 	go func() {
-		if err := http.ListenAndServe(":8081", sh.NewRouter("fileserver")); err != nil {
-			panic(err.Error())
-		}
-	}()
-	go func() {
-		if err := http.ListenAndServe(":8082", sh.NewRouter("fileserver")); err != nil {
-			panic(err.Error())
-		}
-	}()
-	go func() {
-		if err := http.ListenAndServe(":8083", sh.NewRouter("fileserver")); err != nil {
-			panic(err.Error())
-		}
-	}()
-	go func() {
-		if err := http.ListenAndServe(":8005", gw.GetServeMux()); err != nil {
+		if err := http.ListenAndServe(":8005", gw.New()); err != nil {
 			panic(err.Error())
 		}
 	}()
