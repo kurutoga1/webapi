@@ -5,15 +5,26 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
+	"path/filepath"
+	"webapi/server/config"
 	"webapi/server/handlers/program"
 	"webapi/server/handlers/upload"
 	"webapi/server/handlers/user"
 	"webapi/utils/hanlders"
+	ul "webapi/utils/log"
 )
 
-// GetServeMux ハンドラをセットしたrouterを返す。
-func GetServeMux(fileServerDir string) *http.ServeMux {
+var (
+	cfg     *config.Config = config.Load()
+	logFile                = filepath.Join(cfg.Log.Dir, cfg.Log.GoLog)
+
+	logger *log.Logger = ul.GetLogger(logFile)
+)
+
+// NewRouter ハンドラをセットしたrouterを返す。
+func NewRouter(fileServerDir string) *http.ServeMux {
 	router := http.NewServeMux()
 
 	// ファイルサーバーの機能のハンドラ
@@ -25,7 +36,7 @@ func GetServeMux(fileServerDir string) *http.ServeMux {
 	router.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
 	// 登録プログラムを実行させるAPI
-	router.HandleFunc("/pro/", program.ProgramHandler)
+	router.HandleFunc("/pro/", program.ProgramHandler(logger, cfg))
 
 	// ファイルをアップロードするAPI
 	router.HandleFunc("/upload", upload.UploadHandler)

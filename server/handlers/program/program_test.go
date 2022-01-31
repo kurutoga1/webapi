@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"webapi/server/config"
 	"webapi/server/execution/msgs"
 	sh "webapi/server/handlers"
 	"webapi/server/handlers/program"
@@ -37,7 +38,7 @@ func set() {
 	port := http2.GetPortFromURL(addr)
 
 	go func() {
-		if err := http.ListenAndServe(":"+port, sh.GetServeMux("fileserver")); err != nil {
+		if err := http.ListenAndServe(":"+port, sh.NewRouter("fileserver")); err != nil {
 			panic(err.Error())
 		}
 	}()
@@ -145,7 +146,7 @@ func testProgramHandler(t *testing.T, proName string) (*httptest.ResponseRecorde
 	}
 	w := httptest.NewRecorder()
 
-	handler := http.HandlerFunc(program.ProgramHandler)
+	handler := http.HandlerFunc(program.ProgramHandler(log.New(os.Stdout, "", log.LstdFlags), config.Load()))
 
 	handler.ServeHTTP(w, r)
 	var out *outputManager.OutputInfo

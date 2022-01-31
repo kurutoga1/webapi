@@ -29,7 +29,7 @@ func init() {}
 
 func main() {
 
-	router := handlers.GetServeMux(cfg.FileServer.Dir)
+	router := handlers.NewRouter(cfg.FileServer.Dir)
 
 	port := ":" + cfg.ServerPort
 	fmt.Printf("web server on %v%v\n", cfg.ServerIP, port)

@@ -42,19 +42,19 @@ func init() {
 func serverSet() {
 	// servers.jsonのExpectedAliveServersを見ながらサーバを立てる。
 	go func() {
-		if err := http.ListenAndServe(":8081", sh.GetServeMux("fileserver")); err != nil {
+		if err := http.ListenAndServe(":8081", sh.NewRouter("fileserver")); err != nil {
 			panic(err.Error())
 		}
 	}()
 
 	go func() {
-		if err := http.ListenAndServe(":8082", sh.GetServeMux("fileserver")); err != nil {
+		if err := http.ListenAndServe(":8082", sh.NewRouter("fileserver")); err != nil {
 			panic(err.Error())
 		}
 	}()
 
 	go func() {
-		if err := http.ListenAndServe(":8083", sh.GetServeMux("fileserver")); err != nil {
+		if err := http.ListenAndServe(":8083", sh.NewRouter("fileserver")); err != nil {
 			panic(err.Error())
 		}
 	}()

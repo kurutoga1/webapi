@@ -27,7 +27,7 @@ func init() {
 	uploadFile = "uploadfile"
 
 	go func() {
-		if err := http.ListenAndServe(":8881", sh.GetServeMux("fileserver")); err != nil {
+		if err := http.ListenAndServe(":8881", sh.NewRouter("fileserver")); err != nil {
 			panic(err.Error())
 		}
 	}()

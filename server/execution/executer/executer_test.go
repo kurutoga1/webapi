@@ -41,7 +41,7 @@ func init() {
 	programName = "convertToJson"
 
 	go func() {
-		if err := http.ListenAndServe(":8882", sh.GetServeMux("fileserver")); err != nil {
+		if err := http.ListenAndServe(":8882", sh.NewRouter("fileserver")); err != nil {
 			panic(err.Error())
 		}
 	}()
@@ -149,7 +149,7 @@ func TestFileExecuter_Execute(t *testing.T) {
 	for _, tt := range tests {
 		ctx, err := setup(cfg, tt.programName, tt.parameta, tt.uploadFileSize)
 		if err != nil {
-			if strings.Contains(err.Error(), "アップロードされたファイルが大きすぎます。") != tt.uploadIsError {
+			if strings.Contains(err.Error(), "アップロードされたファイルが大きすぎます。") == tt.uploadIsError {
 				t.Errorf("got: %v, want: upload err.", err.Error())
 			}
 		}

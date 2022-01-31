@@ -23,7 +23,7 @@ func GetSomeStartedProgramServer(numberOfServer int) (addrs, ports []string, err
 
 		var done chan error
 		go func() {
-			done <- http.ListenAndServe(":"+port, sh.GetServeMux("fileserver"+port))
+			done <- http.ListenAndServe(":"+port, sh.NewRouter("fileserver"+port))
 		}()
 		// １秒かかる前にserverStartに値が入ってきたということはhttp.ListenAndServeがエラーですぐ終了した場合。
 		// １秒かかったということはhttp.ListenAndServeに成功したということ。
