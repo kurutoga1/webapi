@@ -39,7 +39,7 @@ func NewRouter(fileServerDir string) *http.ServeMux {
 	router.HandleFunc("/pro/", program.ProgramHandler(logger, cfg))
 
 	// ファイルをアップロードするAPI
-	router.HandleFunc("/upload", upload.UploadHandler)
+	router.HandleFunc("/upload", upload.UploadHandler(logger, cfg))
 
 	// /user....の場合は全てAPIではなく、ユーザーが実際にwebにアクセスし、
 	// webページのように使用する。

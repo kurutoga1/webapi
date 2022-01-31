@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -17,34 +18,30 @@ import (
 	int2 "webapi/utils/int"
 )
 
-var (
-	cfg config.Config = *config.Load()
-	// maxUploadSize はアップロードするファイルの上限の大きさ
-	//maxUploadSize int64 = cfg.MaxUploadSizeMB << 20 // 20がメガ表記になる。
-	maxUploadSize int64 = int64(int2.MBToByte(int(cfg.MaxUploadSizeMB)))
-)
-
 // UploadHandler はファイルをアップロードするためのハンドラー。
-func UploadHandler(w http.ResponseWriter, r *http.Request) {
-	_, err := Upload(w, r)
-	if err != nil {
-		msg := fmt.Sprintf("UploadHandler: %v, err msg: %v", msg.UploadFileSizeExceedError(cfg.MaxUploadSizeMB), err.Error())
-		logf(msg)
-		http.Error(w, msg, 500)
-		return
-	}
+func UploadHandler(l *log.Logger, cfg *config.Config) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		_, err := Upload(w, r, cfg)
+		if err != nil {
+			msg := fmt.Sprintf("UploadHandler: %v, err msg: %v", msg.UploadFileSizeExceedError(cfg.MaxUploadSizeMB), err.Error())
+			logf(msg)
+			http.Error(w, msg, 500)
+			return
+		}
 
-	_, err = fmt.Fprintf(w, msg.UploadSuccess)
-	if err != nil {
-		logf(err.Error())
-		http.Error(w, err.Error(), 500)
+		_, err = fmt.Fprintf(w, msg.UploadSuccess)
+		if err != nil {
+			logf(err.Error())
+			http.Error(w, err.Error(), 500)
+			return
+		}
 		return
 	}
-	return
 }
 
 // Upload はファイルをアップロードするためのハンドラー。
-func Upload(w http.ResponseWriter, r *http.Request) (string, error) {
+func Upload(w http.ResponseWriter, r *http.Request, cfg *config.Config) (string, error) {
+	maxUploadSize := int64(int2.MBToByte(int(cfg.MaxUploadSizeMB)))
 	if r.Method != http.MethodPost {
 		return "", fmt.Errorf("Upload: %v ", errors.New(r.Method+" is not allowed."))
 	}

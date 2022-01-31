@@ -1,73 +1,80 @@
 package upload_test
 
 import (
-	"bytes"
-	"io"
 	"log"
-	"mime/multipart"
-	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"testing"
+	"webapi/server/config"
 	"webapi/server/handlers/upload"
 	uf "webapi/utils/file"
+	http2 "webapi/utils/http"
 )
-
-var (
-	uploadFile string
-)
-
-func init() {
-	uploadFile = "200MB.txt"
-	if !uf.FileExists(uploadFile) {
-		err := uf.CreateSpecifiedFile(uploadFile, 200)
-		if err != nil {
-			panic(err.Error())
-		}
-	}
-}
-
-func tearDown() {
-	os.RemoveAll("fileserver")
-	os.Remove(uploadFile)
-}
 
 func TestUploadHandler(t *testing.T) {
-	file, err := os.Open(uploadFile)
-	if err != nil {
-		log.Fatal(err)
+	tests := []struct {
+		testName           string
+		fileName           string
+		fileSize           int64
+		cfgMaxUploadSizeMB int64
+		uploadIsSuccess    bool
+	}{
+		{
+			testName:           "success test",
+			fileName:           "uploadFile",
+			fileSize:           200,
+			cfgMaxUploadSizeMB: 300,
+			uploadIsSuccess:    true,
+		},
+		{
+			testName:           "fail test",
+			fileName:           "uploadFile2",
+			fileSize:           300,
+			cfgMaxUploadSizeMB: 100,
+			uploadIsSuccess:    false,
+		},
 	}
-	defer file.Close()
 
-	body := &bytes.Buffer{}
-	writer := multipart.NewWriter(body)
-	part, err := writer.CreateFormFile("file", filepath.Base(file.Name()))
+	for _, tt := range tests {
+		err := uf.CreateSpecifiedFile(tt.fileName, tt.fileSize)
+		if err != nil {
+			t.Fatalf(err.Error())
+		}
+		t.Run(tt.testName, func(j *testing.T) {
+			cfg := config.Load()
+			cfg.MaxUploadSizeMB = tt.cfgMaxUploadSizeMB
+			testUpload(t, tt.uploadIsSuccess, tt.fileName, cfg)
+		})
+	}
+}
+
+func testUpload(t *testing.T, uploadIsSuccess bool, uploadFile string, cfg *config.Config) {
+	postGetter := http2.NewPostGetter()
+	r, err := postGetter.GetPostRequest("/upload", uploadFile, map[string]string{"dummy": "x"})
 	if err != nil {
-		log.Fatal(err)
+		t.Fatalf(err.Error())
 	}
 
-	io.Copy(part, file)
-	writer.Close()
-	request, err := http.NewRequest("POST", "/upload", body)
-	if err != nil {
-		log.Fatal(err)
-	}
+	w := httptest.NewRecorder()
 
-	request.Header.Add("Content-Type", writer.FormDataContentType())
-
-	response := httptest.NewRecorder()
-
-	upload.UploadHandler(response, request)
+	handler := upload.UploadHandler(log.New(os.Stdout, "", log.LstdFlags), cfg)
+	handler.ServeHTTP(w, r)
 
 	// アップロードされているか
 	uploadedPath := filepath.Join("fileserver", "upload", uploadFile)
-	if !uf.FileExists(uploadedPath) {
-		t.Errorf("uploadedPath(%v) is not exist.", uploadedPath)
+	if uf.FileExists(uploadedPath) != uploadIsSuccess {
+		t.Errorf("got: %v, want: %v", uf.FileExists(uploadedPath), uploadIsSuccess)
 	}
 
 	t.Cleanup(func() {
-		tearDown()
+		err := os.RemoveAll("fileserver")
+		if err != nil {
+			panic(err)
+		}
+		err = os.Remove(uploadFile)
+		if err != nil {
+			panic(err)
+		}
 	})
-
 }

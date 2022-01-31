@@ -85,7 +85,7 @@ func NewContextManager(w http.ResponseWriter, r *http.Request, cfg *config.Confi
 	ctx := &contextManager{}
 
 	// file(multi-data)をこのサーバのfileserver/uploadにアップロードする。
-	uploadFilePath, err := upload.Upload(w, r)
+	uploadFilePath, err := upload.Upload(w, r, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("%v: %v", fName, err)
 	}

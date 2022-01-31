@@ -146,7 +146,7 @@ func testProgramHandler(t *testing.T, proName string) (*httptest.ResponseRecorde
 	}
 	w := httptest.NewRecorder()
 
-	handler := http.HandlerFunc(program.ProgramHandler(log.New(os.Stdout, "", log.LstdFlags), config.Load()))
+	handler := program.ProgramHandler(log.New(os.Stdout, "", log.LstdFlags), config.Load())
 
 	handler.ServeHTTP(w, r)
 	var out *outputManager.OutputInfo
@@ -160,31 +160,31 @@ func testProgramHandler(t *testing.T, proName string) (*httptest.ResponseRecorde
 
 func TestProgramAllHandler(t *testing.T) {
 	set()
-	req, err := http.NewRequest("GET", "/json/program/all", nil)
+	r, err := http.NewRequest("GET", "/json/program/all", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	rr := httptest.NewRecorder()
+	w := httptest.NewRecorder()
 	handler := http.HandlerFunc(program.ProgramAllHandler)
 
-	handler.ServeHTTP(rr, req)
+	handler.ServeHTTP(w, r)
 
-	if status := rr.Code; status != http.StatusOK {
+	if status := w.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got: %v want: %v",
 			status, http.StatusOK)
 	}
 
 	var m map[string]interface{}
-	err = json.Unmarshal(rr.Body.Bytes(), &m)
+	err = json.Unmarshal(w.Body.Bytes(), &m)
 	if err != nil {
-		t.Errorf("%v is not json format. err msg: %v", rr.Body.String(), err.Error())
+		t.Errorf("%v is not json format. err msg: %v", w.Body.String(), err.Error())
 	}
 
 	expectedProgramNames := []string{"convertToJson", "err", "sleep"}
 	for _, name := range expectedProgramNames {
-		if !strings.Contains(rr.Body.String(), name) {
-			t.Errorf("%v is not contaned of %v", name, rr.Body.String())
+		if !strings.Contains(w.Body.String(), name) {
+			t.Errorf("%v is not contaned of %v", name, w.Body.String())
 		}
 	}
 
