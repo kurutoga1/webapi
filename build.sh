@@ -20,13 +20,13 @@ done
 for i in 1 2 3
 do
   echo "server"${i}
-  serverDir=${buildDir}/server${i}
+  serverDir=${buildDir}/pro${i}
   mkdir -p ${serverDir}
-  rm -fr ${serverDir}/server
+  rm -fr ${serverDir}/pro
   rm -fr ${serverDir}/tmplates
-  go build -o ${serverDir}/server server/main.go
-  cp -r server/config/templates ${serverDir}/
-  cp -r server/static ${serverDir}/
+  go build -o ${serverDir}/pro pro/main.go
+  cp -r pro/config/templates ${serverDir}/
+  cp -r pro/static ${serverDir}/
 done
 
 echo "cli"

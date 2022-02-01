@@ -10,10 +10,10 @@ import (
 	"net/http"
 	"path/filepath"
 	"sync"
-	"webapi/server/router"
+	proRouter "webapi/pro/router"
 	int2 "webapi/utils/int"
 
-	"webapi/server/config"
+	"webapi/pro/config"
 	ul "webapi/utils/log"
 )
 
@@ -29,14 +29,14 @@ func init() {}
 
 func main() {
 
-	router := router.New(cfg.FileServer.Dir)
+	r := proRouter.New().New(cfg.FileServer.Dir)
 
 	port := ":" + cfg.ServerPort
-	fmt.Printf("web server on %v%v\n", cfg.ServerIP, port)
+	fmt.Printf("web pro on %v%v\n", cfg.ServerIP, port)
 
 	rotater := ul.NewLogRotater(int2.KBToByte(cfg.Log.RotateShavingKB), int2.KBToByte(cfg.Log.RotateMaxKB), &logMu, logger, logFile)
 
-	if err := http.ListenAndServe(port, ul.RotateMiddleware(ul.HttpTraceMiddleware(router, logger), rotater)); err != nil {
+	if err := http.ListenAndServe(port, ul.RotateMiddleware(ul.HttpTraceMiddleware(r, logger), rotater)); err != nil {
 		panic(fmt.Errorf("[FAILED] start sever. err: %v", err))
 	}
 }

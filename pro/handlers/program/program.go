@@ -8,11 +8,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"webapi/server/config"
-	"webapi/server/execution/contextManager"
-	"webapi/server/execution/executer"
-	"webapi/server/execution/outputManager"
-	"webapi/server/msgs"
+	"webapi/pro/config"
+	"webapi/pro/execution/contextManager"
+	"webapi/pro/execution/executer"
+	"webapi/pro/execution/outputManager"
+	"webapi/pro/msgs"
 	http2 "webapi/utils/http"
 )
 
@@ -57,7 +57,7 @@ func ProgramHandler(l *log.Logger, cfg *config.Config) http.HandlerFunc {
 		logf("parameta: %v", ctx.Parameta())
 		logf("command: %v", ctx.Command())
 		out = newExecuter.Execute(ctx)
-		logf("Status: %v", out.Status())
+		logf("ExpectedStatus: %v", out.Status())
 		logf("ErrMsg: %v", out.ErrorMsg())
 
 		http2.PrintAsJSON(w, out)

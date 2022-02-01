@@ -88,7 +88,7 @@ func (n *programConfig) Help() (string, error) {
 	return string(bytes), nil
 }
 
-// ReplacedCmd はINPUTFILE, OUTPUTDIR, PARAMETA を入力パラメータで置換する。
+// ReplacedCmd はprogram_config.jsonに記述されているコマンド文字列のINPUTFILE, OUTPUTDIR, PARAMETA を入力パラメータで置換する。
 // 置換後のコマンドを返す。
 func (n *programConfig) ReplacedCmd(infile string, outputDir string, parameta string) string {
 	tmp1 := strings.Replace(n.ProCommand, "INPUTFILE", infile, 1)

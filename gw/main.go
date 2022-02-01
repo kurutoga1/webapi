@@ -28,13 +28,13 @@ var (
 
 func main() {
 	addr := cfg.LoadBalancerServerIP + ":" + cfg.LoadBalancerServerPort
-	fmt.Printf("web server on: %v \n", addr)
+	fmt.Printf("web pro on: %v \n", addr)
 
-	router := router.New()
+	r := router.New().New("gwFileServer")
 
 	rotater := log2.NewLogRotater(int2.KBToByte(cfg.RotateShavingKB), int2.KBToByte(cfg.RotateMaxKB), &logMu, logger, cfg.LogPath)
 
-	if err := http.ListenAndServe(addr, log2.RotateMiddleware(log2.HttpTraceMiddleware(router, logger), rotater)); err != nil {
+	if err := http.ListenAndServe(addr, log2.RotateMiddleware(log2.HttpTraceMiddleware(r, logger), rotater)); err != nil {
 		panic(fmt.Errorf("[FAILED] start sever. err: %v", err))
 	}
 }

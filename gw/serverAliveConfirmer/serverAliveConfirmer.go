@@ -58,10 +58,10 @@ func (c *confirmer) IsAlive(serverAddr string, endPoint string) (bool, error) {
 	}
 
 	if resp.StatusCode == http.StatusOK {
-		// server is alive.
+		// pro is alive.
 		return true, nil
 	} else {
-		// server is not alive.
+		// pro is not alive.
 		return false, nil
 	}
 

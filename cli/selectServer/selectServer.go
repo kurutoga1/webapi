@@ -46,7 +46,7 @@ func (s *selector) Select(url string) (addr string, err error) {
 	var decoded j
 	err = json.Unmarshal(byteArray, &decoded)
 	if err != nil {
-		return "", fmt.Errorf("Select: %v, response from APIGW server: %v", err, string(byteArray))
+		return "", fmt.Errorf("Select: %v, response from APIGW pro: %v", err, string(byteArray))
 	}
 
 	return decoded.Url, nil

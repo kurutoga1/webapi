@@ -8,9 +8,10 @@ import (
 	"path/filepath"
 	"reflect"
 	"testing"
-	"webapi/server/config"
-	ec "webapi/server/execution/contextManager"
-	"webapi/tests"
+	"webapi/pro/config"
+	ec "webapi/pro/execution/contextManager"
+	"webapi/pro/router"
+	"webapi/test"
 	"webapi/utils/file"
 	"webapi/utils/http"
 	u "webapi/utils/upload"
@@ -38,7 +39,7 @@ func init() {
 	dummyParameta = "dummyParameta"
 	programName = "convertToJson"
 
-	addrs, ports, err = tests.GetSomeStartedProgramServer(1)
+	addrs, ports, err = test.GetStartedServers(router.New(), 1)
 	fmt.Printf("addrs: %v, ports: %v \n", addrs, ports)
 	if err != nil {
 		panic(err)

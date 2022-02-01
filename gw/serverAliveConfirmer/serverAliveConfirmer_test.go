@@ -7,7 +7,8 @@ import (
 	"reflect"
 	"testing"
 	"webapi/gw/serverAliveConfirmer"
-	"webapi/tests"
+	"webapi/pro/router"
+	"webapi/test"
 	"webapi/utils/file"
 )
 
@@ -29,16 +30,16 @@ func tearDown() {
 }
 
 func TestIsAlive(t *testing.T) {
-	addrs, _, err := tests.GetSomeStartedProgramServer(1)
+	addrs, _, err := test.GetStartedServers(router.New(), 1)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	t.Run("server is alive.", func(t *testing.T) {
+	t.Run("pro is alive.", func(t *testing.T) {
 		testIsAlive(t, addrs[0], "/user/top", true)
 	})
 
-	t.Run("server is not alive.", func(t *testing.T) {
+	t.Run("pro is not alive.", func(t *testing.T) {
 		testIsAlive(t, "http://127.0.0.1:8052", "/user/top", false)
 	})
 
@@ -59,7 +60,7 @@ func testIsAlive(t *testing.T, addr, endPoint string, expect bool) {
 }
 
 func TestGetAliveServers(t *testing.T) {
-	addrs, _, err := tests.GetSomeStartedProgramServer(3)
+	addrs, _, err := test.GetStartedServers(router.New(), 3)
 	if err != nil {
 		log.Fatalln(err)
 	}

@@ -89,7 +89,7 @@ func GetSuitableServerHandler(w http.ResponseWriter, r *http.Request) {
 
 	var jsonStr j
 	if len(programHasServers) == 0 {
-		jsonStr.Url = fmt.Sprintf("%v is not found in all server.", programName)
+		jsonStr.Url = fmt.Sprintf("%v is not found in all pro.", programName)
 	} else {
 		jsonStr.Url = url
 	}
@@ -128,7 +128,7 @@ func UserTopHandler(w http.ResponseWriter, r *http.Request) {
 	endPoint := "/json/program/all"
 	allServerMaps, err = allProgramGetter.Get(aliveServers, endPoint)
 
-	logf("programs of all server: %v ", http2.GetKeysFromMap(allServerMaps))
+	logf("programs of all pro: %v ", http2.GetKeysFromMap(allServerMaps))
 
 	type tmpProInfo struct {
 		Help    string `json:"help"`

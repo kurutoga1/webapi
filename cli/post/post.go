@@ -10,7 +10,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	outLib "webapi/server/execution/outputManager"
+	outLib "webapi/pro/execution/outputManager"
 	http2 "webapi/utils/http"
 )
 
@@ -57,7 +57,7 @@ func (f *fileProcessor) Post(proName, url, uploadFilePath, parameta string) (out
 	var res *outLib.OutputInfo
 	b, err := ioutil.ReadAll(resp.Body)
 	if err := json.Unmarshal(b, &res); err != nil {
-		return &outLib.OutputInfo{}, fmt.Errorf("Post: %v, response body from server: %v", err, string(b))
+		return &outLib.OutputInfo{}, fmt.Errorf("Post: %v, response body from pro: %v", err, string(b))
 	}
 
 	if res.OutputURLs == nil {

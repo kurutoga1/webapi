@@ -9,8 +9,9 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 	gh "webapi/gw/handlers"
-	sh "webapi/server/router"
+	proRouter "webapi/pro/router"
 	"webapi/utils/file"
 )
 
@@ -41,23 +42,33 @@ func init() {
 
 func serverSet() {
 	// servers.jsonのExpectedAliveServersを見ながらサーバを立てる。
-	go func() {
-		if err := http.ListenAndServe(":8081", sh.New("fileserver")); err != nil {
-			panic(err.Error())
-		}
-	}()
-
-	go func() {
-		if err := http.ListenAndServe(":8082", sh.New("fileserver")); err != nil {
-			panic(err.Error())
-		}
-	}()
-
-	go func() {
-		if err := http.ListenAndServe(":8083", sh.New("fileserver")); err != nil {
-			panic(err.Error())
-		}
-	}()
+	ports := []string{"8081", "8082", "8083"}
+	for _, p := range ports {
+		p := p
+		go func() {
+			if err := http.ListenAndServe(":"+p, proRouter.New().New("fileserver"+p)); err != nil {
+				panic(err.Error())
+			}
+			time.Sleep(1 * time.Second)
+		}()
+	}
+	//go func() {
+	//	if err := http.ListenAndServe(":8081", proRouter.New().New("fileserver")); err != nil {
+	//		panic(err.Error())
+	//	}
+	//}()
+	//
+	//go func() {
+	//	if err := http.ListenAndServe(":8082", sh.New("fileserver")); err != nil {
+	//		panic(err.Error())
+	//	}
+	//}()
+	//
+	//go func() {
+	//	if err := http.ListenAndServe(":8083", sh.New("fileserver")); err != nil {
+	//		panic(err.Error())
+	//	}
+	//}()
 }
 
 func tearDown() {

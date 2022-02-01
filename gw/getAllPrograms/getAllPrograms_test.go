@@ -7,7 +7,8 @@ import (
 	"testing"
 	gg "webapi/gw/getAllPrograms"
 	gs "webapi/gw/serverAliveConfirmer"
-	"webapi/tests"
+	"webapi/pro/router"
+	"webapi/test"
 	"webapi/utils/file"
 )
 
@@ -22,7 +23,7 @@ func init() {
 	}
 	currentDir = c
 
-	addrs, ports, err = tests.GetSomeStartedProgramServer(3)
+	addrs, ports, err = test.GetStartedServers(router.New(), 3)
 	if err != nil {
 		panic(err)
 	}

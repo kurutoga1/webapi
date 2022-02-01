@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 	"webapi/cli/selectServer"
-	gw "webapi/gw/router"
-	sh "webapi/server/router"
+	gw_router "webapi/gw/router"
+	pro_router "webapi/pro/router"
 	"webapi/utils/file"
 )
 
@@ -30,7 +30,7 @@ func init() {
 	ports := []string{"8081", "8082", "8083"}
 	for _, p := range ports {
 		go func() {
-			if err := http.ListenAndServe(":"+p, sh.New("fileserver")); err != nil {
+			if err := http.ListenAndServe(":"+p, pro_router.New().New("pro_fileServer")); err != nil {
 				panic(err)
 			}
 		}()
@@ -39,7 +39,7 @@ func init() {
 
 	// APIGWサーバを起動
 	go func() {
-		if err := http.ListenAndServe(":8005", gw.New()); err != nil {
+		if err := http.ListenAndServe(":8005", gw_router.New().New("gw_fileServer")); err != nil {
 			panic(err.Error())
 		}
 	}()

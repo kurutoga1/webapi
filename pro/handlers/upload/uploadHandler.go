@@ -13,8 +13,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"webapi/server/config"
-	msg "webapi/server/msgs"
+	"webapi/pro/config"
+	msg "webapi/pro/msgs"
 	int2 "webapi/utils/int"
 )
 

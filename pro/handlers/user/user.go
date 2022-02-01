@@ -8,10 +8,10 @@ import (
 	"net/http"
 	"path/filepath"
 	"strings"
-	"webapi/server/config"
-	"webapi/server/execution/contextManager"
-	"webapi/server/execution/executer"
-	"webapi/server/execution/outputManager"
+	"webapi/pro/config"
+	"webapi/pro/execution/contextManager"
+	"webapi/pro/execution/executer"
+	"webapi/pro/execution/outputManager"
 	http2 "webapi/utils/http"
 )
 
@@ -120,7 +120,7 @@ func ExecHandler(w http.ResponseWriter, r *http.Request) {
 	logf("parameta: %v", ctx.Parameta())
 	logf("command: %v", ctx.Command())
 	outputInfo = executer.Execute(ctx)
-	logf("Status: %v", outputInfo.Status())
+	logf("ExpectedStatus: %v", outputInfo.Status())
 	logf("ErrMsg: %v", outputInfo.ErrorMsg())
 
 	type data struct {

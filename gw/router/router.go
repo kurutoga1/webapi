@@ -6,8 +6,18 @@ import (
 	http2 "webapi/utils/http"
 )
 
-func New() *http.ServeMux {
+func New() *apiGwServerMux {
+	return &apiGwServerMux{}
+}
+
+type apiGwServerMux struct{}
+
+func (a *apiGwServerMux) New(fileServerDir string) *http.ServeMux {
 	router := http.NewServeMux()
+
+	// ファイルサーバーの機能のハンドラ
+	fileServer := "/" + fileServerDir + "/"
+	router.Handle(fileServer, http.StripPrefix(fileServer, http.FileServer(http.Dir(fileServerDir))))
 
 	// ユーザがこのハンドラにアクセスした場合は全てのサーバにアクセスし、全てのプログラムを表示する。
 	router.HandleFunc("/userTop", handlers.UserTopHandler)

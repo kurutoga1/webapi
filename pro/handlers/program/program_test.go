@@ -8,11 +8,11 @@ import (
 	"os"
 	"strings"
 	"testing"
-	"webapi/server/config"
-	"webapi/server/execution/outputManager"
-	"webapi/server/handlers/program"
-	"webapi/server/msgs"
-	sh "webapi/server/router"
+	"webapi/pro/config"
+	"webapi/pro/execution/outputManager"
+	"webapi/pro/handlers/program"
+	"webapi/pro/msgs"
+	proRouter "webapi/pro/router"
 	"webapi/utils/file"
 	http2 "webapi/utils/http"
 	u "webapi/utils/upload"
@@ -38,7 +38,7 @@ func set() {
 	port := http2.GetPortFromURL(addr)
 
 	go func() {
-		if err := http.ListenAndServe(":"+port, sh.New("fileserver")); err != nil {
+		if err := http.ListenAndServe(":"+port, proRouter.New().New("fileserver")); err != nil {
 			panic(err.Error())
 		}
 	}()

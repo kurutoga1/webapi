@@ -55,7 +55,7 @@ func main() {
 	flag.BoolVar(&displayAllProgramFlag, "a", false, fmt.Sprintf("(option) -aを付与するとwebサーバに登録されているプログラムのリストを表示します。使用例 -> %s -a", flag.CommandLine.Name()))
 	jsonExample := `
 	{
-		"status": "program timeout or program error or server error or ok",
+		"status": "program timeout or program error or pro error or ok",
 		"stdout": "作成プログラムの標準出力",
 		"stderr": "作成プログラムの標準エラー出力",
 		"outURLs": [作成プログラムの出力ファイルのURLのリスト(この値は気にしなくて大丈夫です。)],
@@ -64,7 +64,7 @@ func main() {
 	statusの各項目
 	program timeout -> 登録プログラムがサーバー内で実行された際にタイムアウトになった場合
 	program error   -> 登録プログラムがサーバー内で実行された際にエラーになった場合
-	server error    -> サーバー内のプログラムがエラーを起こした場合
+	pro error    -> サーバー内のプログラムがエラーを起こした場合
 	ok              -> エラーを起こさなかった場合
 	`
 	flag.BoolVar(&outJSONFLAG, "j", false, "(option, but recommend) -j を付与するとコマンド結果の出力がJSON形式になり、次のように出力します。"+jsonExample)
@@ -170,7 +170,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	logger.Printf("selected program server address: %v \n", programServerAddr)
+	logger.Printf("selected program pro address: %v \n", programServerAddr)
 
 	// inputfile,parametaをサーバへ送信しサーバー上で処理する。
 	proURL := fmt.Sprintf("%v/pro/%v", programServerAddr, proName)

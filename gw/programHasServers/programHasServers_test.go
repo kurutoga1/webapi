@@ -7,7 +7,8 @@ import (
 	"reflect"
 	"testing"
 	gp "webapi/gw/programHasServers"
-	"webapi/tests"
+	"webapi/pro/router"
+	"webapi/test"
 	"webapi/utils/file"
 )
 
@@ -23,7 +24,7 @@ func init() {
 	}
 	currentDir = c
 
-	addrs, _, err = tests.GetSomeStartedProgramServer(3)
+	addrs, _, err = test.GetStartedServers(router.New(), 3)
 	if err != nil {
 		log.Fatalln(err)
 	}

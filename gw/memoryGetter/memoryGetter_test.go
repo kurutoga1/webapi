@@ -4,7 +4,8 @@ import (
 	"log"
 	"testing"
 	"webapi/gw/memoryGetter"
-	"webapi/tests"
+	"webapi/pro/router"
+	"webapi/test"
 	"webapi/utils/file"
 )
 
@@ -25,7 +26,7 @@ func init() {
 	}
 	currentDir = c
 	getter = memoryGetter.NewMemoryGetter()
-	addrs, _, err = tests.GetSomeStartedProgramServer(1)
+	addrs, _, err = test.GetStartedServers(router.New(), 1)
 	if err != nil {
 		log.Fatalln(err)
 	}

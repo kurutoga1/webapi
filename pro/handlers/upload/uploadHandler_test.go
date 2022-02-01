@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"webapi/server/config"
-	"webapi/server/handlers/upload"
+	"webapi/pro/config"
+	"webapi/pro/handlers/upload"
 	uf "webapi/utils/file"
 	http2 "webapi/utils/http"
 )

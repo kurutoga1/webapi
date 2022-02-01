@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"testing"
 	p "webapi/cli/post"
-	"webapi/server/router"
+	pro_router "webapi/pro/router"
 	"webapi/utils/file"
 	u "webapi/utils/upload"
 )
@@ -27,7 +27,7 @@ func init() {
 	uploadFile = "uploadfile"
 
 	go func() {
-		if err := http.ListenAndServe(":8881", router.New("fileserver")); err != nil {
+		if err := http.ListenAndServe(":8881", pro_router.New().New("fileServer")); err != nil {
 			panic(err.Error())
 		}
 	}()

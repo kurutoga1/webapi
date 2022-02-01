@@ -9,7 +9,8 @@ import (
 	mg "webapi/gw/memoryGetter"
 	"webapi/gw/minimumServerSelector"
 	sc "webapi/gw/serverAliveConfirmer"
-	"webapi/tests"
+	"webapi/pro/router"
+	"webapi/test"
 	"webapi/utils/file"
 )
 
@@ -33,7 +34,7 @@ func init() {
 	}
 	currentDir = c
 	memoryGetter = mg.NewMemoryGetter()
-	addrs, _, err = tests.GetSomeStartedProgramServer(3)
+	addrs, _, err = test.GetStartedServers(router.New(), 3)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -58,7 +59,7 @@ func TestSelect(t *testing.T) {
 		}
 	}
 	if !contain {
-		t.Errorf("selected server: %v doesn't contain servers: %v", selectedServer, addrs)
+		t.Errorf("selected pro: %v doesn't contain servers: %v", selectedServer, addrs)
 	}
 
 }

@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-	"webapi/server/config"
+	"webapi/pro/config"
 	"webapi/utils/file"
 )
 

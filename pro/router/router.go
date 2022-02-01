@@ -8,10 +8,10 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
-	"webapi/server/config"
-	"webapi/server/handlers/program"
-	"webapi/server/handlers/upload"
-	"webapi/server/handlers/user"
+	"webapi/pro/config"
+	"webapi/pro/handlers/program"
+	"webapi/pro/handlers/upload"
+	"webapi/pro/handlers/user"
 	http2 "webapi/utils/http"
 	ul "webapi/utils/log"
 )
@@ -23,8 +23,14 @@ var (
 	logger *log.Logger = ul.GetLogger(logFile)
 )
 
+func New() *programServerMux {
+	return &programServerMux{}
+}
+
+type programServerMux struct{}
+
 // New ハンドラをセットしたrouterを返す。
-func New(fileServerDir string) *http.ServeMux {
+func (p *programServerMux) New(fileServerDir string) *http.ServeMux {
 	router := http.NewServeMux()
 
 	// ファイルサーバーの機能のハンドラ

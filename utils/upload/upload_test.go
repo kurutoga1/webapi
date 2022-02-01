@@ -5,7 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"webapi/tests"
+	"webapi/pro/router"
+	"webapi/test"
 	"webapi/utils/file"
 	u "webapi/utils/upload"
 )
@@ -24,7 +25,7 @@ func init() {
 	currentDir = c
 	uploadFile = "uploadfile"
 
-	addrs, _, err = tests.GetSomeStartedProgramServer(1)
+	addrs, _, err = test.GetStartedServers(router.New(), 1)
 	if err != nil {
 		log.Fatalln(err)
 	}

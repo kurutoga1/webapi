@@ -2,7 +2,7 @@ package msgs
 
 var (
 	// SERVERERROR はサーバー内でエラーが起きた場合
-	SERVERERROR string = "server error"
+	SERVERERROR string = "pro error"
 
 	// PROGRAMERROR は作成プログラムでエラーが起きた場合
 	PROGRAMERROR string = "program error"

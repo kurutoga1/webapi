@@ -7,6 +7,9 @@
 ./cli -name toJson -i 6mb.txt -o out -p "10" -j
 ./cli -name err -i 6mb.txt -o out -p "10" -j
 ./cli -name sleep -i 6mb.txt -o out -p "10" -j
+
+jsonが帰ってくるか
+エラーならmsgsの中のメッセージは含まれているか
 */
 
 package main_test
