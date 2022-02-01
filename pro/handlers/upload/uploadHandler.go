@@ -16,6 +16,7 @@ import (
 	"webapi/pro/config"
 	msg "webapi/pro/msgs"
 	int2 "webapi/utils/int"
+	utilString "webapi/utils/string"
 )
 
 // UploadHandler はファイルをアップロードするためのハンドラー。
@@ -73,7 +74,9 @@ func Upload(w http.ResponseWriter, r *http.Request, cfg *config.Config) (string,
 	}
 
 	// 保存用ディレクトリ内に新しいファイルを作成します。
-	uploadFilePath := filepath.Join(uploadDir, fileHeader.Filename)
+	// アップロードファイルに半角や全角のスペースがある場合は削除する。
+	spaceRemovedUploadFileName := utilString.RemoveSpace(fileHeader.Filename)
+	uploadFilePath := filepath.Join(uploadDir, spaceRemovedUploadFileName)
 	dst, err := os.Create(uploadFilePath)
 	if err != nil {
 		return "", fmt.Errorf("Upload: %v", err)

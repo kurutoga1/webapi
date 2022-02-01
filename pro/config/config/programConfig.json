@@ -14,6 +14,11 @@
       "name": "err",
       "command": "python3 programs\\err/convert_json.py INPUTFILE OUTPUTDIR PARAMETA",
       "helpPath": "programs/convertToJson/help.txt"
+    },
+    {
+      "name": "move",
+      "command": "mv INPUTFILE OUTPUTDIR/moved.txt",
+      "helpPath": "programs/move/help.txt"
     }
   ]
 }

@@ -12,9 +12,10 @@ import (
 
 /*
 プログラムサーバのテストを行うパッケージ
-TODO: タイムアウト、エラー、OK,アップロードの失敗等
-TODO: アップロードファイル、プログラムネームにスペースがある場合
-TODO: stdoutBufferSiZe等もテストしなければいけない
+タイムアウト、エラー、OK,アップロードの失敗等
+アップロードファイル、プログラムネームにスペースがある場合
+stdoutBufferSiZe等もテストしなければいけない
+入力ファイルにスペースがある場合
 */
 
 type Struct struct {
@@ -25,7 +26,7 @@ type Struct struct {
 	UploadFilePath        string
 	UploadFileSize        int64
 	Parameta              string
-	ExpectedLenOfOutURLs  int
+	ExpectedOutFileNames  []string
 	ExpectedStdOutIsEmpty bool
 	ExpectedStdErrIsEmpty bool
 	ExpectedStatus        string
@@ -66,28 +67,28 @@ func GetMaterials() []Struct {
 			TestName:              "usually convertToJson",
 			IsSkip:                false,
 			ProgramName:           "convertToJson",
+			UploadFilePath:        "uploadfile1",
+			UploadFileSize:        200,
 			Parameta:              "dummyParameta",
-			ExpectedLenOfOutURLs:  1,
+			ExpectedOutFileNames:  []string{"uploadfile1.json"},
 			ExpectedStdOutIsEmpty: false,
 			ExpectedStdErrIsEmpty: true,
 			ExpectedStatus:        msgs.OK,
 			ExpectedErrMsgIsEmpty: true,
-			UploadFilePath:        "uploadfile1",
-			UploadFileSize:        200,
 			ExpectedUploadIsError: false,
 		},
 		{ // アップロードファイルネームにスペースがある場合
 			TestName:              "upload file with space. convertToJson",
-			IsSkip:                true,
+			IsSkip:                false,
 			ProgramName:           "convertToJson",
+			UploadFilePath:        "upload file1",
+			UploadFileSize:        200,
 			Parameta:              "dummyParameta",
-			ExpectedLenOfOutURLs:  1,
+			ExpectedOutFileNames:  []string{"uploadfile1.json"},
 			ExpectedStdOutIsEmpty: false,
 			ExpectedStdErrIsEmpty: true,
 			ExpectedStatus:        msgs.OK,
 			ExpectedErrMsgIsEmpty: true,
-			UploadFilePath:        "upload file1",
-			UploadFileSize:        200,
 			ExpectedUploadIsError: false,
 		},
 		{
@@ -95,41 +96,55 @@ func GetMaterials() []Struct {
 			IsSkip:                false,
 			ProgramName:           "convertToJson",
 			Parameta:              "dummyParameta",
-			ExpectedLenOfOutURLs:  1,
+			UploadFilePath:        "uploadfile2",
+			UploadFileSize:        400,
+			ExpectedOutFileNames:  []string{},
 			ExpectedStdOutIsEmpty: false,
 			ExpectedStdErrIsEmpty: true,
 			ExpectedStatus:        msgs.OK,
 			ExpectedErrMsgIsEmpty: true,
-			UploadFilePath:        "uploadfile2",
-			UploadFileSize:        400,
 			ExpectedUploadIsError: true,
 		},
 		{
 			TestName:              "err raise.",
 			IsSkip:                false,
 			ProgramName:           "err",
+			UploadFilePath:        "uploadfile3",
+			UploadFileSize:        200,
 			Parameta:              "dummyParameta",
-			ExpectedLenOfOutURLs:  0,
+			ExpectedOutFileNames:  []string{},
 			ExpectedStdOutIsEmpty: false,
 			ExpectedStdErrIsEmpty: false,
 			ExpectedStatus:        msgs.PROGRAMERROR,
 			ExpectedErrMsgIsEmpty: false,
-			UploadFilePath:        "uploadfile3",
-			UploadFileSize:        200,
 			ExpectedUploadIsError: false,
 		},
 		{
 			TestName:              "sleep. time out",
 			IsSkip:                false,
 			ProgramName:           "sleep",
+			UploadFilePath:        "uploadfile4",
+			UploadFileSize:        200,
 			Parameta:              "10",
-			ExpectedLenOfOutURLs:  0,
+			ExpectedOutFileNames:  []string{},
 			ExpectedStdOutIsEmpty: true,
 			ExpectedStdErrIsEmpty: true,
 			ExpectedStatus:        msgs.PROGRAMTIMEOUT,
 			ExpectedErrMsgIsEmpty: false,
-			UploadFilePath:        "uploadfile4",
+			ExpectedUploadIsError: false,
+		},
+		{
+			TestName:              "move success",
+			IsSkip:                false,
+			ProgramName:           "move",
+			UploadFilePath:        "uploadfile",
 			UploadFileSize:        200,
+			Parameta:              "10",
+			ExpectedOutFileNames:  []string{"moved.txt"},
+			ExpectedStdOutIsEmpty: true,
+			ExpectedStdErrIsEmpty: true,
+			ExpectedStatus:        msgs.OK,
+			ExpectedErrMsgIsEmpty: true,
 			ExpectedUploadIsError: false,
 		},
 	}

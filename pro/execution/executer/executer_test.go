@@ -2,8 +2,8 @@ package executer_test
 
 import (
 	"fmt"
-	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"webapi/pro/config"
@@ -12,8 +12,6 @@ import (
 	"webapi/pro/execution/outputManager"
 	"webapi/pro/msgs"
 	"webapi/test"
-	"webapi/utils/file"
-	http2 "webapi/utils/http"
 )
 
 var (
@@ -24,36 +22,6 @@ var (
 func init() {
 	cfg = config.Load()
 	executer = executer2.NewExecuter()
-}
-
-func setup(cfg *config.Config, uploadFileName, proName, parameta string, uploadFileKBSize int64) (contextManager.ContextManager, error) {
-	err := file.CreateSpecifiedFile(uploadFileName, uploadFileKBSize)
-	if err != nil {
-		panic(err.Error())
-	}
-	// TODO: urlパラメータに限界文字数はあるのか
-	// urlパラメータで情報を送る場合はquery.getみたいなので取得しないといけない。またhtmlをそっちに合わせないといけない
-
-	fields := map[string]string{
-		"proName":  proName,
-		"parameta": parameta,
-	}
-
-	poster := http2.NewPostGetter()
-	r, err := poster.GetPostRequest("/pro/"+proName, uploadFileName, fields)
-	w := httptest.NewRecorder()
-
-	var ctx contextManager.ContextManager
-	ctx, err = contextManager.NewContextManager(w, r, cfg)
-	if err != nil {
-		return nil, fmt.Errorf("setup: %v", err)
-	}
-
-	return ctx, nil
-}
-
-func tearDown() {
-	os.RemoveAll("fileserver")
 }
 
 func TestFileExecuter_Execute(t *testing.T) {
@@ -86,40 +54,48 @@ func TestFileExecuter_Execute(t *testing.T) {
 			testExecute(t, out, tt, cfg)
 		})
 	}
-
-	t.Cleanup(func() {
-		tearDown()
-	})
 }
 
 func testExecute(t *testing.T, out outputManager.OutputManager, tt test.Struct, cfg *config.Config) {
 	t.Helper()
-	if len(out.OutURLs()) != tt.ExpectedLenOfOutURLs {
-		t.Errorf("name: %v, len of out.OutURLs() is more than 0. got: %v", tt.TestName, len(out.OutURLs()))
+
+	if len(tt.ExpectedOutFileNames) > 0 {
+		for _, ExpectedOutFileName := range tt.ExpectedOutFileNames {
+			isExists := false
+			for _, outPath := range out.OutURLs() {
+				if filepath.Base(outPath) == ExpectedOutFileName {
+					isExists = true
+				}
+			}
+			if !isExists {
+				t.Errorf("test name: %v,\"%v\" is not exists of %v", tt.TestName, ExpectedOutFileName, out.OutURLs())
+			}
+		}
 	}
+
 	if (out.StdOut() == "") != tt.ExpectedStdOutIsEmpty {
-		t.Errorf("name: %v, out.StdOut() is empty. stdout: %v", tt.TestName, out.StdOut())
+		t.Errorf("test name: %v, out.StdOut() is empty. stdout: %v", tt.TestName, out.StdOut())
 	}
 	if (out.StdErr() == "") != tt.ExpectedStdErrIsEmpty {
-		t.Errorf("name: %v, out.StdErr() is not empty. stdout: %v", tt.TestName, out.StdErr())
+		t.Errorf("test name: %v, out.StdErr() is not empty. stdout: %v", tt.TestName, out.StdErr())
 	}
 	if out.Status() != tt.ExpectedStatus {
-		t.Errorf("name: %v, out.ExpectedStatus() is not %v. got: %v", tt.TestName, msgs.OK, out.Status())
+		t.Errorf("test name: %v, out.ExpectedStatus() is not %v. got: %v", tt.TestName, msgs.OK, out.Status())
 	}
 	if (out.ErrorMsg() == "") != tt.ExpectedErrMsgIsEmpty {
-		t.Errorf("name: %v, out.ErrorMsg is not empty. got: %v", tt.TestName, out.ErrorMsg())
+		t.Errorf("test name: %v, out.ErrorMsg is not empty. got: %v", tt.TestName, out.ErrorMsg())
 	}
 
 	// out.Stdout,errはcfg（設定ファイル）の値より小さくなくてはならない。設定値がマックスなので。
 	if len(out.StdOut()) > cfg.StdoutBufferSize {
-		t.Errorf("name: %v, len(out.StdOut()):%v is not more less cfg.StdoutBufferSize: %v \n", tt.TestName, len(out.StdOut()), cfg.StdoutBufferSize)
+		t.Errorf("test name: %v, len(out.StdOut()):%v is not more less cfg.StdoutBufferSize: %v \n", tt.TestName, len(out.StdOut()), cfg.StdoutBufferSize)
 	}
 	if len(out.StdErr()) > cfg.StderrBufferSize {
-		t.Errorf("name: %v, len(out.StdErr()):%v is not more less cfg.StderrBufferSize: %v. ", tt.TestName, len(out.StdErr()), cfg.StderrBufferSize)
+		t.Errorf("test name: %v, len(out.StdErr()):%v is not more less cfg.StderrBufferSize: %v. ", tt.TestName, len(out.StdErr()), cfg.StderrBufferSize)
 	}
 
 	t.Cleanup(func() {
-		tearDown()
+		os.RemoveAll("fileserver")
 		os.Remove(tt.UploadFilePath)
 	})
 }
@@ -142,6 +118,5 @@ func TestFileExecuter_DeleteOutputDir(t *testing.T) {
 		if err != nil {
 			t.Errorf("err from RemoveAll(): %v \n", err.Error())
 		}
-		tearDown()
 	})
 }

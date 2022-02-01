@@ -39,3 +39,12 @@ func GetNowTimeStringWithHyphen() string {
 
 	return n
 }
+
+// RemoveSpace 文字列を受け取り、全角、半角を削除し、返す。
+func RemoveSpace(str string) string {
+	spaces := []string{" ", "　"}
+	for _, space := range spaces {
+		str = strings.ReplaceAll(str, space, "")
+	}
+	return str
+}
