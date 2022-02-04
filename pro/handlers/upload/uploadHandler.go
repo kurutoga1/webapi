@@ -40,6 +40,8 @@ func UploadHandler(l *log.Logger, cfg *config.Config) http.HandlerFunc {
 	}
 }
 
+var FileSizeTooBigError = errors.New("upload file size is too big.")
+
 // Upload はファイルをアップロードするためのハンドラー。
 func Upload(w http.ResponseWriter, r *http.Request, cfg *config.Config) (string, error) {
 	maxUploadSize := int64(int2.MBToByte(int(cfg.MaxUploadSizeMB)))
@@ -49,7 +51,7 @@ func Upload(w http.ResponseWriter, r *http.Request, cfg *config.Config) (string,
 
 	r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
 	if err := r.ParseMultipartForm(maxUploadSize); err != nil {
-		return "", fmt.Errorf("%v, Upload: %v", err, msg.UploadFileSizeExceedError(cfg.MaxUploadSizeMB))
+		return "", fmt.Errorf("%w, file size: %v", FileSizeTooBigError, msg.UploadFileSizeExceedError(cfg.MaxUploadSizeMB))
 	}
 
 	//FormFileの引数はHTML内のform要素のnameと一致している必要があります

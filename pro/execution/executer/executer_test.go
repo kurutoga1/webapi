@@ -1,10 +1,9 @@
 package executer_test
 
 import (
-	"fmt"
+	"errors"
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 	"webapi/pro/config"
 	"webapi/pro/execution/contextManager"
@@ -33,17 +32,17 @@ func TestFileExecuter_Execute(t *testing.T) {
 		if tt.IsSkip {
 			continue
 		}
+
 		ctx, err := tt.Setup()
 		if err != nil {
-			if strings.Contains(err.Error(), msgs.UploadSizeIsTooBig) != tt.ExpectedUploadIsError {
-				t.Errorf("got: %v, want: upload err.", err.Error())
+			// 帰ってきたエラーが期待しているものと違ったら
+			if !errors.Is(err, tt.ExpectedError) {
+				t.Errorf("test name: %v, got: %v, want: %v", tt.TestName, err, tt.ExpectedError)
+				os.Remove(tt.UploadFilePath)
 				continue
 			} else {
-				// ファイルのアップロードテストが予想通りにいった場合。しかし他にエラーの可能性もある。
-				// とりあえずアップロードテストは成功。他のエラーハンドリングは
-				t.Run(tt.TestName, func(j *testing.T) {
-				})
-				fmt.Printf("err: %v \n", err.Error())
+				// 期待しているエラーがきた場合はここにくる
+				// 準備していたアップロードファイルを削除し、このループは終了する。
 				os.Remove(tt.UploadFilePath)
 				continue
 			}

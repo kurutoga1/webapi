@@ -87,7 +87,7 @@ func NewContextManager(w http.ResponseWriter, r *http.Request, cfg *config.Confi
 	// file(multi-data)をこのサーバのfileserver/uploadにアップロードする。
 	uploadFilePath, err := upload.Upload(w, r, cfg)
 	if err != nil {
-		return nil, fmt.Errorf("%v: %v", fName, err)
+		return nil, fmt.Errorf("%v: %w", fName, err)
 	}
 
 	if !file.FileExists(uploadFilePath) {
@@ -108,7 +108,7 @@ func NewContextManager(w http.ResponseWriter, r *http.Request, cfg *config.Confi
 
 	proConf, err := config.GetProConfByName(programName)
 	if err != nil {
-		return nil, fmt.Errorf("%v: %v", fName, err)
+		return nil, fmt.Errorf("%v: %w", fName, err)
 	}
 	ctx.SetProgramConfig(proConf)
 

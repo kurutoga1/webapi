@@ -97,6 +97,8 @@ func (n *programConfig) ReplacedCmd(infile string, outputDir string, parameta st
 	return cmd
 }
 
+var ProgramNotFoundError = errors.New("program not found error")
+
 // GetProConfByName はプログラムの名前を受け取り、programConfig.jsonの中を検索ヒットした
 // ものをProgramConfigHolder(インターフェース)として返す。
 func GetProConfByName(programName string) (ProgramConfigHolder, error) {
@@ -109,7 +111,7 @@ func GetProConfByName(programName string) (ProgramConfigHolder, error) {
 			return program, nil
 		}
 	}
-	return nil, fmt.Errorf("GetProConfByName: %v", errors.New(programName+" is not found."))
+	return nil, fmt.Errorf("%v: %w", programName, ProgramNotFoundError)
 }
 
 // GetPrograms はprogramConfigHolderのインターフェースを返す。
