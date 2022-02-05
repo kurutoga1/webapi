@@ -1,12 +1,14 @@
 package user_test
 
 import (
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"os"
 	"strings"
 	"testing"
+	"webapi/pro/config"
 	"webapi/pro/handlers/user"
 	"webapi/utils/file"
 	http2 "webapi/utils/http"
@@ -22,17 +24,18 @@ func tearDown() {
 }
 
 func TestUserTopHandler(t *testing.T) {
-	request, _ := http.NewRequest(http.MethodGet, "/user/top", nil)
-	response := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/user/top", nil)
+	w := httptest.NewRecorder()
 
-	user.UserTopHandler(response, request)
+	handler := user.TopHandler(log.New(os.Stdout, "", log.LstdFlags), config.Load())
+	handler.ServeHTTP(w, r)
 
-	if response.Code != http.StatusOK {
-		t.Errorf("got %v, want %v", response.Code, http.StatusOK)
+	if w.Code != http.StatusOK {
+		t.Errorf("got %v, want %v", w.Code, http.StatusOK)
 	}
 
 	programName := "convertToJson"
-	if !strings.Contains(response.Body.String(), programName) {
+	if !strings.Contains(w.Body.String(), programName) {
 		t.Errorf("html doesn't have %v", programName)
 	}
 }
@@ -41,19 +44,20 @@ func TestPrepareExecHandler(t *testing.T) {
 	form := url.Values{
 		"proName": []string{"convertToJson"},
 	}
-	req, err := http.NewRequest("POST", "/user/perpareExec", strings.NewReader(form.Encode()))
+	r, err := http.NewRequest("POST", "/user/perpareExec", strings.NewReader(form.Encode()))
 	if err != nil {
 		panic(err.Error())
 	}
 
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
-	response := httptest.NewRecorder()
+	w := httptest.NewRecorder()
 
-	user.PrepareExecHandler(response, req)
+	handler := user.PrepareExecHandler(config.Load())
+	handler.ServeHTTP(w, r)
 
-	if response.Code != http.StatusOK {
-		t.Errorf("got %v, want %v", response.Code, http.StatusOK)
+	if w.Code != http.StatusOK {
+		t.Errorf("got %v, want %v", w.Code, http.StatusOK)
 	}
 }
 
@@ -76,7 +80,8 @@ func TestExecHandler(t *testing.T) {
 	}
 	w := httptest.NewRecorder()
 
-	user.ExecHandler(w, r)
+	handler := user.ExecHandler(log.New(os.Stdout, "", log.LstdFlags), config.Load())
+	handler.ServeHTTP(w, r)
 
 	if w.Code != http.StatusOK {
 		t.Errorf("got %v, want %v", w.Code, http.StatusOK)

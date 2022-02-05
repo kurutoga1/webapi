@@ -45,14 +45,14 @@ func (p *programServerMux) New(fileServerDir string) *http.ServeMux {
 	router.HandleFunc("/pro/", program.Handler(logger, cfg))
 
 	// ファイルをアップロードするAPI
-	router.HandleFunc("/upload", upload.UploadHandler(logger, cfg))
+	router.HandleFunc("/upload", upload.Handler(logger, cfg))
 
 	// /user....の場合は全てAPIではなく、ユーザーが実際にwebにアクセスし、
 	// webページのように使用する。
-	router.HandleFunc("/user/top", user.UserTopHandler)
-	router.HandleFunc("/user/fileUpload", user.UserFileUploadHandler)
-	router.HandleFunc("/user/prepareExec", user.PrepareExecHandler)
-	router.HandleFunc("/user/exec", user.ExecHandler)
+	router.HandleFunc("/user/top", user.TopHandler(logger, cfg))
+	router.HandleFunc("/user/fileUpload", user.FileUploadHandler(cfg))
+	router.HandleFunc("/user/prepareExec", user.PrepareExecHandler(cfg))
+	router.HandleFunc("/user/exec", user.ExecHandler(logger, cfg))
 
 	// このサーバプログラムのメモリ状態をJSONで表示するAPI
 	router.HandleFunc("/json/health/memory", http2.GetRuntimeHandler)

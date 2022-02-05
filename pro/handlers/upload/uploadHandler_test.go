@@ -58,7 +58,7 @@ func testUpload(t *testing.T, uploadIsSuccess bool, uploadFile string, cfg *conf
 
 	w := httptest.NewRecorder()
 
-	handler := upload.UploadHandler(log.New(os.Stdout, "", log.LstdFlags), cfg)
+	handler := upload.Handler(log.New(os.Stdout, "", log.LstdFlags), cfg)
 	handler.ServeHTTP(w, r)
 
 	// アップロードされているか

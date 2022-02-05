@@ -19,20 +19,20 @@ import (
 	utilString "webapi/utils/string"
 )
 
-// UploadHandler はファイルをアップロードするためのハンドラー。
-func UploadHandler(l *log.Logger, cfg *config.Config) http.HandlerFunc {
+// Handler はファイルをアップロードするためのハンドラー。
+func Handler(l *log.Logger, cfg *config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		_, err := Upload(w, r, cfg)
 		if err != nil {
-			msg := fmt.Sprintf("UploadHandler: %v, err msg: %v", msg.UploadFileSizeExceedError(cfg.MaxUploadSizeMB), err.Error())
-			logf(msg)
+			msg := fmt.Sprintf("Handler: %v, err msg: %v", msg.UploadFileSizeExceedError(cfg.MaxUploadSizeMB), err.Error())
+			l.Printf(msg)
 			http.Error(w, msg, 500)
 			return
 		}
 
 		_, err = fmt.Fprintf(w, msg.UploadSuccess)
 		if err != nil {
-			logf(err.Error())
+			l.Printf(err.Error())
 			http.Error(w, err.Error(), 500)
 			return
 		}
@@ -95,7 +95,7 @@ func Upload(w http.ResponseWriter, r *http.Request, cfg *config.Config) (string,
 	// アップロードされたファイルを先程作ったファイルにコピーします。
 	_, err = io.Copy(dst, file)
 	if err != nil {
-		return "", fmt.Errorf("Upload: %v", err)
+		return "", fmt.Errorf("Upload: %w", err)
 	}
 
 	return uploadFilePath, nil
