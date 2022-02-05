@@ -42,7 +42,7 @@ func (p *programServerMux) New(fileServerDir string) *http.ServeMux {
 	router.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
 	// 登録プログラムを実行させるAPI
-	router.HandleFunc("/pro/", program.ProgramHandler(logger, cfg))
+	router.HandleFunc("/pro/", program.Handler(logger, cfg))
 
 	// ファイルをアップロードするAPI
 	router.HandleFunc("/upload", upload.UploadHandler(logger, cfg))
@@ -58,7 +58,7 @@ func (p *programServerMux) New(fileServerDir string) *http.ServeMux {
 	router.HandleFunc("/json/health/memory", http2.GetRuntimeHandler)
 
 	// プログラムサーバに登録してあるプログラム一覧をJSONで表示するAPI
-	router.HandleFunc("/json/program/all", program.ProgramAllHandler)
+	router.HandleFunc("/json/program/all", program.AllHandler(logger))
 
 	// このサーバが生きているかを判断するのに使用するハンドラ
 	router.HandleFunc("/health", http2.HealthHandler)

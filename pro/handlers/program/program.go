@@ -16,12 +16,12 @@ import (
 	http2 "webapi/utils/http"
 )
 
-// ProgramHandler はプログラムを実行するためのハンドラー。処理結果をJSON文字列で返す。
+// Handler はプログラムを実行するためのハンドラー。処理結果をJSON文字列で返す。
 // cliからアクセスされる。cliの場合はこのハンドラにリクエストがくる前にファイルのアップロードは
 // 完了し,アップロードディレクトリに格納されている。bodyにファイルベース名とパラメタを格納し、リクエストとしてこのハンドラ
 // に送られる。
 // アップロードファイルやパラメータ等を使用し、コマンド実行する。
-func ProgramHandler(l *log.Logger, cfg *config.Config) http.HandlerFunc {
+func Handler(l *log.Logger, cfg *config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		programName := r.URL.Path[len("/pro/"):]
 
@@ -39,7 +39,7 @@ func ProgramHandler(l *log.Logger, cfg *config.Config) http.HandlerFunc {
 
 			out.SetErrorMsg(msg)
 			out.SetStatus(msgs.SERVERERROR)
-			logf(msg)
+			l.Printf(msg)
 
 			http2.PrintAsJSON(w, out)
 			return
@@ -47,51 +47,53 @@ func ProgramHandler(l *log.Logger, cfg *config.Config) http.HandlerFunc {
 
 		ctx, err := contextManager.NewContextManager(w, r, cfg)
 		if err != nil {
-			logf(err.Error())
+			l.Printf(err.Error())
 			http.Error(w, err.Error(), 500)
 			return
 		}
 
-		logf("programName: %v", ctx.ProgramName())
-		logf("uploadFilePath: %v", ctx.UploadedFilePath())
-		logf("parameta: %v", ctx.Parameta())
-		logf("command: %v", ctx.Command())
+		l.Printf("programName: %v", ctx.ProgramName())
+		l.Printf("uploadFilePath: %v", ctx.UploadedFilePath())
+		l.Printf("parameta: %v", ctx.Parameta())
+		l.Printf("command: %v", ctx.Command())
 		out = newExecuter.Execute(ctx)
-		logf("ExpectedStatus: %v", out.Status())
-		logf("ErrMsg: %v", out.ErrorMsg())
+		l.Printf("ExpectedStatus: %v", out.Status())
+		l.Printf("ErrMsg: %v", out.ErrorMsg())
 
 		http2.PrintAsJSON(w, out)
 		return
 	}
 }
 
-// ProgramAllHandler は登録されているプログラムの全てをJSONで返す。
-func ProgramAllHandler(w http.ResponseWriter, r *http.Request) {
-	_ = r.Body
-	w.Header().Add("Content-Type", "application/json")
+// AllHandler は登録されているプログラムの全てをJSONで返す。
+func AllHandler(l *log.Logger) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		_ = r.Body
+		w.Header().Add("Content-Type", "application/json")
 
-	proConfList, err := config.GetPrograms()
-	if err != nil {
-		logf(err.Error())
-		http.Error(w, err.Error(), 500)
-		return
-	}
-
-	m := map[string]interface{}{}
-	// proConfListから代入していく
-	for _, ele := range proConfList {
-		m1 := map[string]string{}
-		m[ele.Name()] = m1
-		m1["command"] = ele.Command()
-		help, err := ele.Help()
+		proConfList, err := config.GetPrograms()
 		if err != nil {
-			logf("ProgramAllHandler: %v", err)
+			l.Printf(err.Error())
 			http.Error(w, err.Error(), 500)
 			return
 		}
-		m1["help"] = help
-	}
 
-	http2.PrintAsJSON(w, m)
-	return
+		m := map[string]interface{}{}
+		// proConfListから代入していく
+		for _, ele := range proConfList {
+			m1 := map[string]string{}
+			m[ele.Name()] = m1
+			//m1["command"] = ele.Command()
+			help, err := ele.Help()
+			if err != nil {
+				l.Printf("AllHandler: %v", err)
+				http.Error(w, err.Error(), 500)
+				return
+			}
+			m1["help"] = help
+		}
+
+		http2.PrintAsJSON(w, m)
+		return
+	}
 }

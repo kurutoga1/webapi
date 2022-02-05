@@ -7,9 +7,9 @@ diff.txt
 log.txt
 build/cli/cli
 build/gw/gw
-build/server1/server
-build/server2/server
-build/server3/server
+build/pro1/server
+build/pro2/server
+build/pro3/server
 .idea
 ./build
 build

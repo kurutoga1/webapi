@@ -146,7 +146,7 @@ func testProgramHandler(t *testing.T, proName string) (*httptest.ResponseRecorde
 	}
 	w := httptest.NewRecorder()
 
-	handler := program.ProgramHandler(log.New(os.Stdout, "", log.LstdFlags), config.Load())
+	handler := program.Handler(log.New(os.Stdout, "", log.LstdFlags), config.Load())
 
 	handler.ServeHTTP(w, r)
 	var out *outputManager.OutputInfo
@@ -166,7 +166,7 @@ func TestProgramAllHandler(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	handler := http.HandlerFunc(program.ProgramAllHandler)
+	handler := program.AllHandler(log.New(os.Stdout, "", log.LstdFlags))
 
 	handler.ServeHTTP(w, r)
 
@@ -179,6 +179,16 @@ func TestProgramAllHandler(t *testing.T) {
 	err = json.Unmarshal(w.Body.Bytes(), &m)
 	if err != nil {
 		t.Errorf("%v is not json format. err msg: %v", w.Body.String(), err.Error())
+	}
+
+	for _, v := range m {
+		m2, ok := v.(map[string]interface{})
+		if !ok {
+			t.Errorf("got: %v, want: true", ok)
+		}
+		if _, ok = m2["help"]; !ok {
+			t.Errorf("got: %v, want: true.", ok)
+		}
 	}
 
 	expectedProgramNames := []string{"convertToJson", "err", "sleep"}
