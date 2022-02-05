@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"path/filepath"
+	"sort"
 	"text/template"
 	"webapi/gw/config"
 	gg "webapi/gw/getAllPrograms"
@@ -186,6 +187,9 @@ func UserTopHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Content-Type", "text/html")
 	serveHtml := filepath.Join("./templates", "top.html")
+
+	// 名前順でソートする
+	sort.Slice(dataToHtml.ProInfos, func(i, j int) bool { return dataToHtml.ProInfos[i].Name < dataToHtml.ProInfos[j].Name })
 
 	t, err := template.ParseFiles(serveHtml)
 	if err != nil {
