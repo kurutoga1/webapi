@@ -56,7 +56,7 @@ func main() {
 	jsonExample := `
 	{
 		"status": "program timeout or program error or pro error or ok",
-		"stdout": "作成プログラムの標準出力",
+		"programsJSON": "作成プログラムの標準出力",
 		"stderr": "作成プログラムの標準エラー出力",
 		"outURLs": [作成プログラムの出力ファイルのURLのリスト(この値は気にしなくて大丈夫です。)],
 		"errmsg": "サーバ内のプログラムで起きたエラーメッセージ"
@@ -114,18 +114,17 @@ func main() {
 
 	logger.Printf("selected APIGateWay address: %v \n", apiGateWayServerAddr)
 
+	// 全てのプログラム情報を取得する。allProgramInfoはjsonで出力される。
+	command := fmt.Sprintf("curl %v/AllServerPrograms", apiGateWayServerAddr)
+	programsJSON, stderr, err := utils2.SimpleExec(command)
+	if err != nil || programsJSON == "" {
+		fmt.Printf("err from SimpleExec(command: %v), err msg: %v. stderr: %v, \n", command, err.Error(), stderr)
+		os.Exit(1)
+	}
+
 	// プログラム一覧を確認する。 -a があれば実行
 	if displayAllProgramFlag {
-		command := fmt.Sprintf("curl %v/AllServerPrograms", apiGateWayServerAddr)
-		stdout, stderr, err := utils2.SimpleExec(command)
-		if err != nil {
-			fmt.Printf("err from SimpleExec(command: %v), err msg: %v \n", command, err.Error())
-		} else if stdout != "" {
-			fmt.Println(stdout)
-		} else {
-			// stdoutが空の場合
-			fmt.Printf("err. stdout is empty. stderr: %v \n", stderr)
-		}
+		fmt.Println(programsJSON)
 		os.Exit(1)
 	}
 
@@ -155,6 +154,18 @@ func main() {
 			fmt.Printf("err from Mkdir(%v): %v \n", outputDir, err.Error())
 			os.Exit(1)
 		}
+	}
+
+	// ---------- 入力されたプログラム名は存在するのか確認する --------------
+	// json str からmapに変換
+	var proMaps map[string]interface{}
+	if err := json.Unmarshal([]byte(programsJSON), &proMaps); err != nil {
+		fmt.Println(err)
+	}
+
+	if _, ok := proMaps[proName]; !ok {
+		fmt.Printf("%v is not found in all program server.", proName)
+		os.Exit(1)
 	}
 
 	// ---------- プログラムサーバの中で入力ファイルを処理させる。 ----------
