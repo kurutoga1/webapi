@@ -21,7 +21,7 @@ func SetConfPath(confName string) {
 	serversConfigPath = filepath.Join(currentDir, confName)
 }
 
-type serversConfig struct {
+type Config struct {
 	Servers                []string `json:"ExpectedAliveServers"`
 	GetMemoryEndPoint      string   `json:"GetMemoryEndPoint"`
 	LoadBalancerServerIP   string   `json:"LoadBalancerServerIP"`
@@ -32,12 +32,12 @@ type serversConfig struct {
 }
 
 // NewServerConfig はservers.jsonの中身をserversConfig構造体にセットし、返す
-func NewServerConfig() *serversConfig {
+func NewServerConfig() *Config {
 	if serversConfigPath == "" {
 		SetConfPath("config.json")
 	}
 	// 構造体を初期化
-	conf := &serversConfig{}
+	conf := &Config{}
 
 	// 設定ファイルを読み込む
 	cValue, err := ioutil.ReadFile(serversConfigPath)

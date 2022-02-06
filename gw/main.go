@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"sync"
 	"webapi/gw/config"
-	"webapi/gw/handlers"
 	"webapi/gw/router"
 	int2 "webapi/utils/int"
 	log2 "webapi/utils/log"
@@ -17,7 +16,6 @@ func init() {
 	// なるだけライブラリではLoggerを使用しない設計にする。
 	l := log2.GetLogger(cfg.LogPath)
 	l.SetFlags(log.LstdFlags)
-	handlers.SetLogger(l)
 }
 
 var (

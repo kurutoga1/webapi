@@ -10,6 +10,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"webapi/gw/config"
 	gh "webapi/gw/handlers"
 	proRouter "webapi/pro/router"
 	"webapi/utils/file"
@@ -52,23 +53,6 @@ func serverSet() {
 			time.Sleep(1 * time.Second)
 		}()
 	}
-	//go func() {
-	//	if err := http.ListenAndServe(":8081", proRouter.New().New("fileserver")); err != nil {
-	//		panic(err.Error())
-	//	}
-	//}()
-	//
-	//go func() {
-	//	if err := http.ListenAndServe(":8082", sh.New("fileserver")); err != nil {
-	//		panic(err.Error())
-	//	}
-	//}()
-	//
-	//go func() {
-	//	if err := http.ListenAndServe(":8083", sh.New("fileserver")); err != nil {
-	//		panic(err.Error())
-	//	}
-	//}()
 }
 
 func tearDown() {
@@ -78,13 +62,14 @@ func tearDown() {
 
 func TestGetMinimumMemoryServerHandler(t *testing.T) {
 
-	request, _ := http.NewRequest(http.MethodGet, "/MinimumMemoryServer", nil)
-	response := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/MinimumMemoryServer", nil)
+	w := httptest.NewRecorder()
 
-	gh.GetMinimumMemoryServerHandler(response, request)
+	handler := gh.GetMinimumMemoryServerHandler(config.NewServerConfig())
+	handler.ServeHTTP(w, r)
 
-	if response.Code != http.StatusOK {
-		t.Errorf("got %v, want %v, body: %v \n", response.Code, http.StatusOK, response.Body.String())
+	if w.Code != http.StatusOK {
+		t.Errorf("got %v, want %v, body: %v \n", w.Code, http.StatusOK, w.Body.String())
 	}
 
 	type j struct {
@@ -92,7 +77,7 @@ func TestGetMinimumMemoryServerHandler(t *testing.T) {
 	}
 
 	var d j
-	err = json.Unmarshal(response.Body.Bytes(), &d)
+	err = json.Unmarshal(w.Body.Bytes(), &d)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -107,13 +92,14 @@ func TestGetMinimumMemoryServerHandler(t *testing.T) {
 }
 
 func TestGetSuitableServerHandler(t *testing.T) {
-	request, _ := http.NewRequest(http.MethodGet, "/SuitableServer/convertToJson", nil)
-	response := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/SuitableServer/convertToJson", nil)
+	w := httptest.NewRecorder()
 
-	gh.GetSuitableServerHandler(response, request)
+	handler := gh.GetSuitableServerHandler(log.New(os.Stdout, "", log.LstdFlags), config.NewServerConfig())
+	handler.ServeHTTP(w, r)
 
-	if response.Code != http.StatusOK {
-		t.Errorf("got %v, want %v", response.Code, http.StatusOK)
+	if w.Code != http.StatusOK {
+		t.Errorf("got %v, want %v", w.Code, http.StatusOK)
 	}
 
 	type j struct {
@@ -121,7 +107,7 @@ func TestGetSuitableServerHandler(t *testing.T) {
 	}
 
 	var d j
-	err = json.Unmarshal(response.Body.Bytes(), &d)
+	err = json.Unmarshal(w.Body.Bytes(), &d)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -136,13 +122,14 @@ func TestGetSuitableServerHandler(t *testing.T) {
 }
 
 func TestUserTopHandler(t *testing.T) {
-	request, _ := http.NewRequest(http.MethodGet, "/userTop2", nil)
-	response := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/userTop", nil)
+	w := httptest.NewRecorder()
 
-	gh.UserTopHandler(response, request)
+	handler := gh.UserTopHandler(log.New(os.Stdout, "", log.LstdFlags), config.NewServerConfig())
+	handler.ServeHTTP(w, r)
 
-	if response.Code != http.StatusOK {
-		t.Errorf("got %v, want %v", response.Code, http.StatusOK)
+	if w.Code != http.StatusOK {
+		t.Errorf("got %v, want %v", w.Code, http.StatusOK)
 	}
 
 	t.Cleanup(func() {
@@ -152,20 +139,21 @@ func TestUserTopHandler(t *testing.T) {
 
 func TestGetAliveServersHandler(t *testing.T) {
 
-	request, _ := http.NewRequest(http.MethodGet, "/AliveServers", nil)
-	response := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/AliveServers", nil)
+	w := httptest.NewRecorder()
 
-	gh.GetAliveServersHandler(response, request)
+	handler := gh.GetAliveServersHandler(log.New(os.Stdout, "", log.LstdFlags), config.NewServerConfig())
+	handler.ServeHTTP(w, r)
 
-	if response.Code != http.StatusOK {
-		t.Errorf("got %v, want %v", response.Code, http.StatusOK)
+	if w.Code != http.StatusOK {
+		t.Errorf("got %v, want %v", w.Code, http.StatusOK)
 	}
 
 	type data struct {
 		AliveServers []string `json:"AliveServers"`
 	}
 	var d data
-	err = json.Unmarshal(response.Body.Bytes(), &d)
+	err = json.Unmarshal(w.Body.Bytes(), &d)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -180,16 +168,17 @@ func TestGetAliveServersHandler(t *testing.T) {
 }
 
 func TestGetAllProgramsHandler(t *testing.T) {
-	request, _ := http.NewRequest(http.MethodGet, "/AllServerPrograms", nil)
-	response := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/AllServerPrograms", nil)
+	w := httptest.NewRecorder()
 
-	gh.GetAllProgramsHandler(response, request)
+	handler := gh.GetAllProgramsHandler(log.New(os.Stdout, "", log.LstdFlags), config.NewServerConfig())
+	handler.ServeHTTP(w, r)
 
-	if response.Code != http.StatusOK {
-		t.Errorf("got %v, want %v", response.Code, http.StatusOK)
+	if w.Code != http.StatusOK {
+		t.Errorf("got %v, want %v", w.Code, http.StatusOK)
 	}
 
-	b := response.Body.String()
+	b := w.Body.String()
 	if !strings.Contains(b, "convertToJson") {
 		t.Errorf("%v doesn't contain convertToJson", b)
 	}

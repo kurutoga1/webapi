@@ -51,7 +51,14 @@ func HttpTraceMiddleware(h http.Handler, logger *log.Logger) http.Handler {
 		logger.SetFlags(log.Ldate | log.Ltime)
 
 		// jsやcssのGETはいらないログなので避ける。
-		if !strings.Contains(path, ".css") && !strings.Contains(path, ".js") {
+		avoid := false
+		logAvoidExts := []string{".css", ".js", ".png", "ico"}
+		for _, ext := range logAvoidExts {
+			if strings.Contains(path, ext) {
+				avoid = true
+			}
+		}
+		if !avoid {
 			logger.Printf("%s %s%s", method, rAddr, path)
 		}
 
