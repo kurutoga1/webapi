@@ -85,7 +85,9 @@ func main() {
 	}
 
 	// ロガーをセットする
-	logger := log2.GetLogger("./log.txt")
+	logger := log.New(os.Stdout, "", log.LstdFlags)
+
+	// ロガーフラグがない場合はログを出さない
 	if !LogFlag {
 		logger.SetOutput(new(log2.NullWriter))
 	}
@@ -163,6 +165,7 @@ func main() {
 		fmt.Println(err)
 	}
 
+	// プログラム情報に入力されてプログラム名はあるのか、ない場合はエラーを出す。
 	if _, ok := proMaps[proName]; !ok {
 		fmt.Printf("%v is not found in all program server.", proName)
 		os.Exit(1)
@@ -227,5 +230,4 @@ func main() {
 			os.Exit(1)
 		}
 	}
-
 }
